@@ -1,2 +1,64 @@
-# pentos
-A variant for the classic game bulls and cows
+# Arrow 5: A Spies Game
+
+## Overview
+
+**Arrow 5** is a real-time competitive deduction game where two secret agents race against each other to crack the enemy's secret code. In this fast-paced challenge, players exchange coded attacks and receive directional hints to adjust their guesses. The game is designed to deliver an engaging experience with instant updates through WebSocket communication.
+
+## Tech Stack
+
+- **Backend:** FastAPI, Python, WebSockets
+- **Frontend:** React, TypeScript, SASS
+- **Database:** TBD (in-memory cache or persistent storage for game sessions)
+
+## Installation
+
+### Prerequisites
+
+- **Python** (version 3.9+ recommended)
+- **Node.js** (version 16+ recommended)
+
+### Setup
+
+#### Backend (FastAPI)
+
+1. Clone the repository:
+   git clone https://github.com/SantiagoPozo/arrow5.git
+   cd arrow5
+2. Create and activate a virtual environment:
+   python3 -m venv env
+   source env/bin/activate # For macOS/Linux
+   env\Scripts\activate # For Windows
+3. Install dependencies:
+   pip install fastapi uvicorn
+4. Run the FastAPI server from backend/:
+   uvicorn main:app --reload
+
+#### Frontend (React)
+
+1. Navigate to the frontend directory:
+   cd frontend
+2. Install dependencies:
+   npm install
+3. Start the development server:
+   npm start
+
+## API Endpoints
+
+### REST API
+
+- POST /games → Creates a new game.
+- GET /games/{game_id} → Retrieves the current game state.
+- POST /games/{game_id}/move → Submits a move.
+
+### WebSocket
+
+- ws://server_address/ws/game/{game_id} → Real-time connection for game updates and moves.
+
+## Deployment
+
+(Currently for local development; deployment instructions will be defined as the project evolves.)
+
+## License
+
+This project is licensed under the GNU General Public License, Version 3, 29 June 2007.
+See the [LICENSE](LICENSE) file for details.
