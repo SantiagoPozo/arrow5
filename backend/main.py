@@ -4,8 +4,22 @@ from typing import List
 from pydantic import Field
 from pydantic import BaseModel
 from fastapi import FastAPI, WebSocket
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:5173",   # Puerto donde corre tu frontend
+    "http://127.0.0.1:5173"    # Alternativa si accedes con 127.0.0.1
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],  # o especifica los métodos que uses: ["GET", "POST"]...
+    allow_headers=["*"],
+)
 
 games = {}
 

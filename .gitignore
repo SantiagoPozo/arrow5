@@ -1,0 +1,21 @@
+# Virtualenv
+env/
+venv/
+*.pyc
+__pycache__/
+
+# Node modules
+frontend/node_modules/
+
+# Temporary files
+*.log
+*.DS_Store
+
+# Editor files
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# System files
+Thumbs.db

@@ -33,14 +33,21 @@
 4. Run the FastAPI server from backend/:
    uvicorn main:app --reload
 
-#### Frontend (React)
+#### Frontend (React + TypeScript with Vite)
 
-1. Navigate to the frontend directory:
-   cd frontend
-2. Install dependencies:
-   npm install
-3. Start the development server:
-   npm start
+The frontend uses [Vite](https://vitejs.dev/) for a fast and modern development environment with React and TypeScript.
+
+##### Setup
+
+1. Navigate to the `frontend` directory:
+
+```bash
+cd frontend
+npm create vite@latest . -- --template react-ts
+npm install
+npm install axios
+npm run dev
+```
 
 ## API Endpoints
 
