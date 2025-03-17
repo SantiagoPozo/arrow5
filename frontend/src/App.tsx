@@ -8,7 +8,10 @@ function App() {
   const [count, setCount] = useState<number>(-1);
   return (
     <>
-      <h1>Arrow 5 - A Spy Game</h1>
+      <h1>
+        Arrow 5:
+        <br />a Spy Game
+      </h1>
       <a href="{spyLogo}" target="_blank">
         <img src={spyLogo} className="logo" alt="Spy logo" />
       </a>

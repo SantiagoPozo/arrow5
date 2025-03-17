@@ -5,6 +5,8 @@ from pydantic import Field
 from pydantic import BaseModel
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
+from random import sample
+from constants import *
 
 app = FastAPI()
 
@@ -44,6 +46,11 @@ async def websocket_endpoint(websocket: WebSocket):
 @app.post("/games")
 async def create_game():
     game_id = str(uuid.uuid4())
-    game = Game(id=game_id)
+    secret = generateCode(5)
+    game = Game(id=game_id, secret=secret)
     games[game_id] = game
     return game
+
+def generateCode(k):
+    return sample(ALPH[:11], k)
+

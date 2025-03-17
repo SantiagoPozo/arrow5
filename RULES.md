@@ -55,8 +55,8 @@ Finally, the defending agent declares: "backtrack, steady, advance". The attacke
 
 **Example of a complete game by an agent.**
 
-| **Code**   |         1 0 3 6 9          | **Signal** |
-|:----------:|:--------------------------:|:----------:|
+| **Code**   |         1 0 3 6 9           | **Signal** |
+|:----------:|:---------------------------:|:----------:|
 | **Attack 1** | _0_ 5 7 _9_ 2             | `> >`      |
 | **Attack 2** | _6_  __0__ 👁 _3_  _1_    | `> · < <`  |
 | **Attack 3** | _3_  __0__  _6_  _1_ 👁   | `> · > <`  |
