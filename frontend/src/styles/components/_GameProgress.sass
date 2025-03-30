@@ -1,0 +1,145 @@
+.attempt
+  display: flex
+  flex-direction: row
+  justify-content: flex-start
+
+
+.row
+  border: 1px solid #aaa    
+  display: flex
+  flex-direction: row
+  justify-content: center
+  margin-top: 20px
+
+.result
+  &::after
+    content: ""
+    position: absolute
+    bottom: 0
+    left: 0
+    width: 100%
+    height: 15px
+    margin: 0
+    padding: 0
+    font-size: 0.6em
+    display: flex
+    justify-content: center
+    align-items: center
+    background-color: #ccc
+  &.rigth
+    &::after
+      content: ">"
+      background-color: #9f9
+  &.left
+    &::after
+      content: "<"
+      background-color: #9f9
+  &.steady
+    &::after
+      content: "="
+      background-color: #292
+      color: white
+  &.not
+    &::after
+      background-color: #f99
+
+
+.tile
+  box-sizing: border-box
+  border-radius: 3px
+  padding: 0 5px 5px 5px
+  margin: 5px
+  font-size: 1.5em
+  width: 50px
+  height: 50px
+  text-align: center
+  position: relative
+  transition: all 0.2s
+  border: 1px solid #aaa
+
+  &:hover
+    border-color: #bbf
+    border-width: 4px
+    padding-top: -4px
+    cursor: pointer
+
+.result
+  display: flex
+  flex-direction: row
+  justify-content: center
+  margin-top: 5px
+  font-size: 1.5em
+  height: 50px
+  
+  & .result-char
+    width: 25px
+  & .steady
+    color: #292
+  & .move
+    color: #3c3
+
+
+#attempt-input
+  height: 50px
+  font-size: 1.5em
+  letter-spacing: calc(60px - 1.5em)
+  text-align: center
+  margin: 5px
+  border-radius: 3px
+  border: 1px solid #aaa
+  transition: all 0.2s
+  &:focus
+    border-color: #bbf
+    border-width: 4px
+    cursor: pointer
+  &.rigth
+    background-color: #9f9
+  &.left
+    background-color: #9f9
+  &.steady
+    background-color: #292
+    color: white
+  &.not
+    background-color: #f99
+  
+// Keyboard
+
+.key-button 
+  box-sizing: border-box
+  display: flex
+  flex-direction: row
+  justify-content: center
+  align-items: center
+  width: 50px
+  height: 50px
+  font-size: 1.5em
+  margin: 5px
+  border-radius: 3px
+  border: 2px solid #aaa
+  transition: all 0.2s
+  padding: 0
+  &:hover
+    border-color: #bbf
+    border-width: 2px
+    cursor: pointer
+  &.rigth
+    background-color: #9f9
+  &.left
+    background-color: #9f9
+  &.steady
+    background-color: #292
+    color: white
+  &.not
+    background-color: #f99
+  
+//
+.input-tiles
+  display: flex
+  flex-direction: row
+  justify-content: left
+  margin-top: 20px
+  margin-bottom: 20px
+  height: 50px
+  & .active
+    border-color: #229
+    border-width: 4px

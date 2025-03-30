@@ -2,7 +2,8 @@
 
 ## Overview
 
-**Arrow 5** is a real-time competitive deduction game where two secret agents race against each other to crack the enemy's secret code. In this fast-paced challenge, players exchange coded attacks and receive directional hints to adjust their guesses. The game is designed to deliver an engaging experience with instant updates through WebSocket communication.
+**Arrow** 5 is a solo deduction game where you, a special agent, attempt to uncover the secret code of the Corporation. Through a series of coded attacks, you receive directional hints indicating how close each guess is to the solution. The game is designed to challenge logic and reasoning in a fun, interactive format.
+
 
 ## Tech Stack
 

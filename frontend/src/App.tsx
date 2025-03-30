@@ -1,27 +1,34 @@
-import { useState } from "react";
-// import reactLogo from "./assets/react.svg";
-import spyLogo from "./assets/spy.png";
-import "./App.css";
+// frontend/src/App.tsx
+import { useRef, useState } from "react";
 import CreateGame from "./components/CreateGame";
+import GameProgress from "./components/GameProgress";
+import "./App.css";
+import "./styles/main.sass";
+
+type GameStatus = "NO_GAME" | "IN_PROGRESS" | "FINISHED";
 
 function App() {
-  const [count, setCount] = useState<number>(-1);
+  const [gameStatus, setGameStatus] = useState<GameStatus>("NO_GAME");
+  let gameId = useRef<string>("");
+
   return (
     <>
-      <h1>
-        Arrow 5:
-        <br />a Spy Game
-      </h1>
-      <a href="{spyLogo}" target="_blank">
-        <img src={spyLogo} className="logo" alt="Spy logo" />
-      </a>
-      <CreateGame />
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p></p>
-      </div>
+      {gameStatus === "NO_GAME" && (
+        <CreateGame
+          onGameCreated={(newId) => {
+            gameId.current = newId;
+            setGameStatus("IN_PROGRESS");
+          }}
+        />
+      )}
+      {(gameStatus === "IN_PROGRESS" || gameStatus === "FINISHED") && (
+        <GameProgress
+          gameId={gameId.current}
+          onGameFinished={() => setGameStatus("FINISHED")}
+          startNewGame={() => setGameStatus("NO_GAME")}
+          gameStatus={gameStatus}
+        />
+      )}
     </>
   );
 }

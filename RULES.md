@@ -28,23 +28,23 @@ An attack consists of an attempt to decipher the code. The attacking player comp
 ### 4. Enemy Response: The Signal
 The opposing agent's response is called the **signal**: it is a sequence of hints, considering only the **relevant characters** (i.e., those that appear in their code). The hints are given from left to right (following the order in which they appear in the signal) and can be one of the following:
 - **"<" (backtrack):** The character must move to the left.
-- **"·" (steady):** The character is in its correct position.
+- **"=" (steady):** The character is in its correct position.
 - **">" (advance):** The character must move to the right.
 - Each character in the signal reveals the presence of a **relevant** character.
 
 **Example of an attack.**
 - `1 0 3 6 9`  &nbsp;**Secret Code**  
 - `5 1 3 9 4`  &nbsp;**Attack**  
-- `< · >`      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**Received Signal**
+- `< = >`      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**Received Signal**
 
 **How is the response formulated?**  
 The defending agent notes that the relevant characters are `1`, `3`, and `9`. Only these are considered. The defending agent formulates a _signal_ in response. Let’s step into the mind of the defending agent and see how they think:
 - `5` is not in my code. No information is provided for this character.
 - `1` is in my code, but it appears earlier. Mark it as `<`.
-- `3` is in my code and is in the correct position. Mark it as `·`.
+- `3` is in my code and is in the correct position. Mark it as `=`.
 - `6` is not present.
 - `9` is in my code, but it appears later. Mark it as `>`.
-Finally, the defending agent declares: "backtrack, steady, advance". The attacker receives `< · >`.
+Finally, the defending agent declares: "backtrack, steady, advance". The attacker receives `< = >`.
 
 - An experienced agent can deduce many things from this specific signal:
 	- That `5` is not in the secret code because it cannot be backtracked. (5 is irrelevant.)
@@ -58,10 +58,10 @@ Finally, the defending agent declares: "backtrack, steady, advance". The attacke
 | **Code**   |         1 0 3 6 9           | **Signal** |
 |:----------:|:---------------------------:|:----------:|
 | **Attack 1** | _0_ 5 7 _9_ 2             | `> >`      |
-| **Attack 2** | _6_  __0__ 👁 _3_  _1_    | `> · < <`  |
-| **Attack 3** | _3_  __0__  _6_  _1_ 👁   | `> · > <`  |
-| **Attack 4** | *6* **0 3** *1* **9**     | `> · · < ·`|
-| **Attack 5** | **1 0 3 6 9**             | `· · · · ·`|
+| **Attack 2** | _6_  __0__ 👁 _3_  _1_    | `> = < <`  |
+| **Attack 3** | _3_  __0__  _6_  _1_ 👁   | `> = > <`  |
+| **Attack 4** | *6* **0 3** *1* **9**     | `> = = < =`|
+| **Attack 5** | **1 0 3 6 9**             | `= = = = =`|
 
 **Explanation for Attack 1.**  
 The defending agent reviews the attack: `0 5 7 9 2`  
