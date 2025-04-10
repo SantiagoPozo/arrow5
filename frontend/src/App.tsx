@@ -2,7 +2,6 @@
 import { useRef, useState } from "react";
 import CreateGame from "./components/CreateGame";
 import GameProgress from "./components/GameProgress";
-import "./App.css";
 import "./styles/main.sass";
 
 type GameStatus = "NO_GAME" | "IN_PROGRESS" | "FINISHED";

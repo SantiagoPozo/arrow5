@@ -1,6 +1,7 @@
 // frontend/src/components/CreateGame.tsx
 import React, { useState, FormEvent, useEffect } from "react";
-import spyLogo from "./../assets/spy.png";
+import sheSpy from "./../assets/she.png";
+import heSpy from "./../assets/he.png";
 import axios from "axios";
 
 // Utility functions for managing player data in localStorage
@@ -47,6 +48,14 @@ type CreateGameProps = {
 const CreateGame: React.FC<CreateGameProps> = ({ onGameCreated }) => {
   const [playerName, setPlayerName] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [selectedGenders, setSelectedGenders] = useState<{
+    she: boolean;
+    he: boolean;
+  }>({
+    she: false,
+    he: false,
+  });
+
   // Add useEffect to check for active player when component mounts
   useEffect(() => {
     const activePlayer = getActivePlayer();
@@ -55,15 +64,33 @@ const CreateGame: React.FC<CreateGameProps> = ({ onGameCreated }) => {
     }
   }, []);
 
+  const toggleGender = (gender: "she" | "he") => {
+    setSelectedGenders((prev) => ({
+      ...prev,
+      [gender]: !prev[gender],
+    }));
+  };
+
   const handleCreateGame = async (e?: FormEvent) => {
     if (e) e.preventDefault();
     if (!playerName.trim()) return;
+
+    // Determine player gender based on selections
+    let gender = "none";
+    if (selectedGenders.she && selectedGenders.he) {
+      gender = "both";
+    } else if (selectedGenders.she) {
+      gender = "she";
+    } else if (selectedGenders.he) {
+      gender = "he";
+    }
 
     setIsLoading(true);
     try {
       const url = "http://127.0.0.1:8000/games";
       const response = await axios.post(url, {
         playerName,
+        gender, // Changed from playerGender to gender to match backend model
       });
       const newId = response.data.id;
       onGameCreated(newId);
@@ -77,31 +104,67 @@ const CreateGame: React.FC<CreateGameProps> = ({ onGameCreated }) => {
   };
 
   return (
-    <div>
+    <div id="create-game">
       <h1>
-        Arr👁w Code <br /> A Spy Game
+        Arr👁w Code <br /> A Spies Game
       </h1>
       <form onSubmit={handleCreateGame}>
-        <div>
-          <img src={spyLogo} className="logo" alt="Spy logo" />
-          <label htmlFor="playerName">Player Name </label>
-          <input
-            type="text"
-            id="playerName"
-            name="playerName"
-            value={playerName}
-            onChange={(e) => setPlayerName(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleCreateGame();
-              }
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: "20px",
+            margin: "20px 0",
+          }}
+        >
+          <div
+            onClick={() => toggleGender("she")}
+            style={{
+              cursor: "pointer",
+              padding: "8px",
+              border: selectedGenders.she
+                ? "3px solid #0088ff"
+                : "3px solid transparent",
+              borderRadius: "10px",
+              opacity: selectedGenders.she ? 1 : 0.7,
+              transition: "all 0.2s ease",
             }}
-            autoFocus
-          />
-          <button type="submit" disabled={isLoading || !playerName.trim()}>
-            {isLoading ? "Creating..." : "Create Game"}
-          </button>
+          >
+            <img src={sheSpy} className="logo" alt="She Spy logo" />
+          </div>
+          <div
+            onClick={() => toggleGender("he")}
+            style={{
+              cursor: "pointer",
+              padding: "8px",
+              border: selectedGenders.he
+                ? "3px solid #0088ff"
+                : "3px solid transparent",
+              borderRadius: "10px",
+              opacity: selectedGenders.he ? 1 : 0.7,
+              transition: "all 0.2s ease",
+            }}
+          >
+            <img src={heSpy} className="logo" alt="He Spy logo" />
+          </div>
         </div>
+        <input
+          type="text"
+          id="playerName"
+          name="playerName"
+          value={playerName}
+          onChange={(e) => setPlayerName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleCreateGame();
+            }
+          }}
+          placeholder="Enter your name"
+          autoFocus
+        />
+        <button type="submit" disabled={isLoading || !playerName.trim()}>
+          {isLoading ? "Creating..." : "Create Game"}
+        </button>
       </form>
     </div>
   );

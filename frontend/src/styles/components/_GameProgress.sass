@@ -1,17 +1,28 @@
+@use '../abstracts/variables' as *
+@use '../abstracts/mixins' as mixins
+
+.error
+  color: $color-spy-says-no
+
 .attempt
   display: flex
   flex-direction: row
   justify-content: flex-start
+  gap: 0.5em
+  
 
+.tile
+  +mixins.common-tile-keybutton
 
-.row
-  border: 1px solid #aaa    
-  display: flex
-  flex-direction: row
-  justify-content: center
-  margin-top: 20px
+.present
+  border-color: $color-spy-says-yes
+  border-width: 3px
 
-.result
+.absent
+  border-color: $color-spy-says-no
+  border-width: 3px
+
+.result-tile
   &::after
     content: ""
     position: absolute
@@ -21,116 +32,89 @@
     height: 15px
     margin: 0
     padding: 0
-    font-size: 0.6em
     display: flex
     justify-content: center
     align-items: center
     background-color: #ccc
-  &.rigth
-    &::after
-      content: ">"
-      background-color: #9f9
-  &.left
-    &::after
-      content: "<"
-      background-color: #9f9
-  &.steady
-    &::after
-      content: "="
-      background-color: #292
-      color: white
-  &.not
-    &::after
-      background-color: #f99
+    border-radius: 0 0 4px 4px 
 
+  &.spy-says-no
+    border-color: $color-spy-says-no
+    border-width: 2px
+    color: $color-spy-says-no
 
-.tile
-  box-sizing: border-box
-  border-radius: 3px
-  padding: 0 5px 5px 5px
-  margin: 5px
-  font-size: 1.5em
-  width: 50px
-  height: 50px
-  text-align: center
-  position: relative
-  transition: all 0.2s
-  border: 1px solid #aaa
-
+  &.spy-says-yes
+    border-color: $color-spy-says-yes
+    border-width: 3px
+    color: $color-spy-says-yes
   &:hover
     border-color: #bbf
     border-width: 4px
     padding-top: -4px
-    cursor: pointer
+  &.clue-required
+    &::after
+      color: white  
+    &.absent
+      &::after
+        content: "×"
+        background-color: $color-spy-says-no
+    &.present
+      &::after
+        background-color: $color-spy-says-yes
+    &.left
+      &::after
+        content: "<"
+    &.right
+      &::after
+        content: ">"
+    &.steady
+      &::after
+        content: "="
 
 .result
   display: flex
   flex-direction: row
   justify-content: center
   margin-top: 5px
-  font-size: 1.5em
+  margin-left: 10px
   height: 50px
   
   & .result-char
     width: 25px
-  & .steady
-    color: #292
-  & .move
-    color: #3c3
-
+    color: $color-spy-says-yes
 
 #attempt-input
   height: 50px
-  font-size: 1.5em
   letter-spacing: calc(60px - 1.5em)
   text-align: center
   margin: 5px
-  border-radius: 3px
+  border-radius: 8px
   border: 1px solid #aaa
   transition: all 0.2s
   &:focus
     border-color: #bbf
     border-width: 4px
     cursor: pointer
-  &.rigth
-    background-color: #9f9
-  &.left
-    background-color: #9f9
-  &.steady
-    background-color: #292
-    color: white
-  &.not
-    background-color: #f99
-  
+
+
 // Keyboard
 
-.key-button 
-  box-sizing: border-box
-  display: flex
-  flex-direction: row
-  justify-content: center
-  align-items: center
-  width: 50px
-  height: 50px
-  font-size: 1.5em
-  margin: 5px
-  border-radius: 3px
-  border: 2px solid #aaa
-  transition: all 0.2s
-  padding: 0
-  &:hover
-    border-color: #bbf
-    border-width: 2px
-    cursor: pointer
-  &.rigth
-    background-color: #9f9
-  &.left
-    background-color: #9f9
-  &.steady
-    background-color: #292
-    color: white
-  &.not
-    background-color: #f99
+#keyboard  
+  position: fixed;
+  bottom: 1em;
+  left: 50%;
+  transform: translateX(-50%);  
+  display: grid
+  grid-template-columns: repeat(6, 1fr)
+  grid-template-rows: repeat(2, auto)
+  gap: 0.5em
+  margin-top: 20px
+  & .present
+    border-color: $color-spy-says-yes
+    color: $color-spy-says-yes
+  & .absent
+    border-color: $color-spy-says-no
+    color: $color-spy-says-no
   
 //
 .input-tiles
@@ -140,6 +124,8 @@
   margin-top: 20px
   margin-bottom: 20px
   height: 50px
-  & .active
-    border-color: #229
-    border-width: 4px
+  gap: 0.5em
+
+.active
+  border-color: $color-blue
+  border-width: 4px

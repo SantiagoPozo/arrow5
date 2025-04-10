@@ -1,32 +1,46 @@
 import React from "react";
 import Tile from "./Tile";
 import ResultChar from "./ResultChar";
+import { AttemptData, ClueData } from "../types";
 
 interface GameboardProps {
-  gameData: {
-    attempts: string[];
-    responses: any[];
-  };
+  attemptData: AttemptData;
+  setError: React.Dispatch<React.SetStateAction<string>>;
+  setClueData: React.Dispatch<React.SetStateAction<ClueData>>;
+  clueData: ClueData;
   gameId: string;
+  keyColors: Record<string, "spy-says-no" | "spy-says-yes">;
 }
 
-const Gameboard: React.FC<GameboardProps> = ({ gameData, gameId }) => {
+const Gameboard: React.FC<GameboardProps> = ({
+  attemptData,
+  setError,
+  setClueData,
+  clueData,
+  gameId,
+  keyColors,
+}) => {
   return (
     <div className="GameBoard">
-      {gameData.attempts.map((at, index) => (
+      {attemptData.attempts.map((at, index) => (
         <div className="attempt" key={index}>
-          {at.split("").map((at, innerIndex) => (
+          {at.split("").map((character, innerIndex) => (
             <Tile
+              key={innerIndex}
               gameId={gameId}
               attemptIndex={index}
-              key={innerIndex}
               tileIndex={innerIndex}
+              setError={setError}
+              setClueData={setClueData}
+              clueData={clueData}
+              attempt={attemptData.attempts[index]}
+              keyColor={keyColors[character]}
             >
-              {at}
+              {character}
             </Tile>
           ))}
           <div>
-            <ResultChar>{gameData.responses[index]}</ResultChar>
+            <ResultChar>{attemptData.responses[index]}</ResultChar>
           </div>
         </div>
       ))}

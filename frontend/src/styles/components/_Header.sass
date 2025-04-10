@@ -1,0 +1,33 @@
+@use '../abstracts/variables' as *
+
+header 
+  position: fixed
+  top: 0
+  left: 0
+  z-index: 100
+  display: flex
+  justify-content: space-evenly
+  align-items: center
+  gap: 1em
+  width: 100%
+  color: $color-dark
+  border-bottom: 2px solid $color-dark
+
+#avatar
+  display: inline-block
+  height: 50px
+  width: auto
+  vertical-align: middle
+  margin-right: 8px
+  border-radius: 50%
+  object-fit: cover
+  & img
+    height: 50px
+  &.she
+    border: 2px solid #ff6090
+  
+  &.he
+    border: 2px solid #3f51b5
+  
+  &.both
+    border: 2px solid #9c27b0

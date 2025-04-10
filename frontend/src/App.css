@@ -1,0 +1,18 @@
+/* Cursores personalizados para los modos de color */
+.cursor-spy-says-no,
+.cursor-spy-says-no button,
+.cursor-spy-says-no * {
+  cursor: url("/src/assets/red-brush-40.png") 7 40, auto !important;
+}
+
+.cursor-spy-says-yes,
+.cursor-spy-says-yes button,
+.cursor-spy-says-yes * {
+  cursor: url("/src/assets/green-brush-40.png") 7 40, auto !important;
+}
+
+.cursor-eraser,
+.cursor-eraser button,
+.cursor-eraser * {
+  cursor: url("/src/assets/eraser-40.png") 7 40, auto !important;
+}

@@ -1,5 +1,5 @@
 import uuid
-from typing import List
+from typing import List, Tuple, Dict
 from pydantic import Field, BaseModel
 from fastapi import FastAPI, WebSocket, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -26,32 +26,31 @@ games = {}
 class Game(BaseModel):
     id: str
     player: str = None
-    secret: str = Field(default_factory=list)
+    gender: str = "none"  # Valor por defecto
+    secret: str  # Asumimos que secret es una cadena
     attempts: List[str] = Field(default_factory=list)
     responses: List[str] = Field(default_factory=list)
-    clues: dict[int, dict[int, str]] = Field(default_factory=dict)
+    # Nueva estructura de clues: la clave es una tupla (attemptIndex, tileIndex)
+    # y el valor es un diccionario con la pista resultante.
+    clues: Dict[Tuple[int, int], Dict[str, str]] = Field(default_factory=dict)
     
 @app.get("/")
 async def root():
     return {"message": "Hello, Arrow 5!"}
 
-@app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    while True:
-        data = await websocket.receive_text()
-        await websocket.send_text(f"Message text was: {data}")
 
 class GameCreateRequest(BaseModel):
     playerName: str
+    gender: str = "none"  # Add gender field with default value
 
 @app.post("/games")
 async def create_game(data: GameCreateRequest):
     game_id = str(uuid.uuid4())
-    secret = generateCode(5)
+    secret = generateCode(CODE_LENGTH)
     game = Game(
         id=game_id, 
-        player=data.playerName, 
+        player=data.playerName,
+        gender=data.gender, 
         secret=secret
     )
     games[game_id] = game
@@ -88,29 +87,37 @@ async def get_clue(game_id: str, attemptIndex: int, tileIndex: int):
     if game_id not in games:
         raise HTTPException(status_code=404, detail="Game not found")
     game = games[game_id]
-    
-    # Only one clue per attempt
-    if attemptIndex in game.clues:
-        raise HTTPException(status_code=400, detail="Clue for this attempt index has already been requested")
-    
+
+# Only one clue per attempt
+    # if attemptIndex in game.clues:
+    #     raise HTTPException(status_code=400, detail="Clue for this attempt index has already been requested")
     # Validate the indexes
     if attemptIndex < 0 or attemptIndex >= len(game.attempts):
         raise HTTPException(status_code=400, detail="Invalid attempt index")
     
     attempt = game.attempts[attemptIndex]
-
     
-    if tileIndex < 0 or tileIndex >= len(attempt):
+    if tileIndex < 0 or tileIndex >= CODE_LENGTH:
         raise HTTPException(status_code=400, detail="Invalid tile index")
+    
+    # Crear la clave como tupla
+    key: Tuple[int, int] = (attemptIndex, tileIndex)
+    
+    # Si esa pista ya fue solicitada, interrumpir el proceso
+    if key in game.clues:
+        raise HTTPException(
+            status_code=400,
+            detail="Clue for this attempt and tile has already been requested"
+        )
     
     try:
         clue_str = clue(game.secret, attempt, tileIndex)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     
-    # Actualizar el estado del juego (opcional)
-    game.clues[attemptIndex] = {tileIndex: clue_str}
-    
+    # Actualizamos clues usando la nueva estructura:
+    game.clues[key] = {"result": clue_str}
+    print(game.clues)
     return {"clue": clue_str}
 
 def generateCode(k: int) -> str:
@@ -118,9 +125,9 @@ def generateCode(k: int) -> str:
     return "".join(code)
 
 def evaluate(secret: str, attempt: str) -> str:
-    if len(attempt) < LENGTH:  # LENGTH definido en constants.py (valor 5)
+    if len(attempt) < CODE_LENGTH: 
         raise ValueError("Attempt needs to be 5 characters long")
-    if len(attempt) == LENGTH and len(set(attempt)) < LENGTH:
+    if len(attempt) == CODE_LENGTH and len(set(attempt)) < CODE_LENGTH:
         raise ValueError("Attempt needs to have 5 different characters")
     result = ""
     for i, a in enumerate(attempt):
@@ -141,7 +148,7 @@ def clue(secret: str, attempt: str, position: int) -> str:
 
     symbol = attempt[position]
     if symbol not in secret:
-        return "not"
+        return "absent"
     real_position = secret.index(symbol)
     print(f"real position: {real_position}")
     if real_position == position:
@@ -149,5 +156,5 @@ def clue(secret: str, attempt: str, position: int) -> str:
     elif real_position < position:
         return "left"
     else:
-        return "rigth"
+        return "right"
 

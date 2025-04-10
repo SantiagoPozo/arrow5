@@ -1,10 +1,4 @@
-import React, { useState } from "react";
-
-interface InputAttemptProps {
-  attempt: string;
-  setAttempt: React.Dispatch<React.SetStateAction<string>>;
-  onSubmit: (attempt: string) => void;
-}
+import { InputAttemptProps } from "../types";
 
 const InputAttempt: React.FC<InputAttemptProps> = ({
   onSubmit,
