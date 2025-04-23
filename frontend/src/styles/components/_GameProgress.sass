@@ -2,74 +2,83 @@
 @use '../abstracts/mixins' as mixins
 
 .error
-  color: $color-spy-says-no
+  color: $color-red
 
-.attempt
+.GameBoard > div
   display: flex
   flex-direction: row
-  justify-content: flex-start
-  gap: 0.5em
-  
+  flex-wrap: nowrap
+  align-items: center
+  justify-content: left
+  margin-top: 20px
+  min-width: 320px
+
+.attempt
+  display: grid
+  gap: 0 
+  +mixins.responsive-grid
+
+  & div:first-child 
+    border-radius: 8px 0 0 10px
+    &::after
+      border-radius: 0 0 0 6px
+  & div:nth-child(n + 2)
+    border-left: none
+  & div:nth-child(5)
+    border-radius: 0 8px 10px 0
+    border-left: none
+    &::after
+      border-radius: 0 0 6px 0
 
 .tile
   +mixins.common-tile-keybutton
-
-.present
-  border-color: $color-spy-says-yes
-  border-width: 3px
-
-.absent
-  border-color: $color-spy-says-no
-  border-width: 3px
+  border: 1px solid #aaa
 
 .result-tile
+  transition: filter 0.2s ease
+  &:hover
+    cursor: help
   &::after
-    content: ""
-    position: absolute
-    bottom: 0
-    left: 0
-    width: 100%
-    height: 15px
-    margin: 0
-    padding: 0
     display: flex
     justify-content: center
     align-items: center
-    background-color: #ccc
-    border-radius: 0 0 4px 4px 
-
+    position: absolute
+    z-index: -10
+    content: ""
+    bottom: 0
+    left: 0
+    width: 100%
+    height: 17px
+    margin: 0
+    padding: 0
+    background-color: #ccc 
   &.spy-says-no
-    border-color: $color-spy-says-no
-    border-width: 2px
-    color: $color-spy-says-no
-
+    box-shadow: inset -2px 0 1px $color-red, inset 0 2px 1px $color-red, inset 2px 0 1px $color-red, inset 0 -2px 1px $color-red
+    color: $color-red
   &.spy-says-yes
-    border-color: $color-spy-says-yes
-    border-width: 3px
-    color: $color-spy-says-yes
-  &:hover
-    border-color: #bbf
-    border-width: 4px
-    padding-top: -4px
-  &.clue-required
-    &::after
-      color: white  
-    &.absent
-      &::after
-        content: "×"
-        background-color: $color-spy-says-no
-    &.present
-      &::after
-        background-color: $color-spy-says-yes
-    &.left
-      &::after
-        content: "<"
-    &.right
-      &::after
-        content: ">"
-    &.steady
-      &::after
-        content: "="
+    box-shadow: inset -2px 0 1px $color-green, inset 0 2px 1px $color-green, inset 2px 0 1px $color-green, inset 0 -2px 1px $color-green
+    color: $color-green
+  &.present
+    box-shadow: inset -2px 0 2px $color-green, inset 0 2px 2px $color-green, inset 2px 0 2px $color-green, inset 0 -2px 2px $color-green
+    border-bottom: none
+    &.clue-required::after
+      background-color: $color-green
+  &.absent
+    box-shadow: inset -2px 0 2px $color-red, inset 0 2px 2px $color-red, inset 2px 0 2px $color-red, inset 0 -2px 2px $color-red
+    border-bottom: none
+    &.clue-required::after
+      content: "×"
+      background-color: $color-red
+  &.clue-required::after
+    color: white
+    font-size: 0.6em
+    font-family: serif
+  &.left::after
+    content: $left
+  &.right::after
+    content: $right
+  &.steady::after
+    content: $steady
 
 .result
   display: flex
@@ -78,54 +87,38 @@
   margin-top: 5px
   margin-left: 10px
   height: 50px
+    
   
   & .result-char
-    width: 25px
-    color: $color-spy-says-yes
+    font-family: serif  
+    color: $color-green
+    width: 16px
+    &.move
+      transform: scaleX(0.8)
+    @media (min-width: 401px)
+      font-size: 0.85em
+    @media (max-width: 400px)
+      font-size: 0.75em
 
-#attempt-input
-  height: 50px
-  letter-spacing: calc(60px - 1.5em)
-  text-align: center
-  margin: 5px
-  border-radius: 8px
+.input-tile
   border: 1px solid #aaa
-  transition: all 0.2s
+  &.active
+    box-shadow: 0 0 5px $color-blue   
   &:focus
-    border-color: #bbf
-    border-width: 4px
-    cursor: pointer
-
-
-// Keyboard
-
-#keyboard  
-  position: fixed;
-  bottom: 1em;
-  left: 50%;
-  transform: translateX(-50%);  
+    outline: none
+.input-tiles  
   display: grid
-  grid-template-columns: repeat(6, 1fr)
-  grid-template-rows: repeat(2, auto)
-  gap: 0.5em
-  margin-top: 20px
-  & .present
-    border-color: $color-spy-says-yes
-    color: $color-spy-says-yes
-  & .absent
-    border-color: $color-spy-says-no
-    color: $color-spy-says-no
-  
-//
-.input-tiles
-  display: flex
-  flex-direction: row
-  justify-content: left
   margin-top: 20px
   margin-bottom: 20px
-  height: 50px
-  gap: 0.5em
+  gap: 0
+  & div:first-child 
+    border-radius: 8px 0 0 8px
+  & div:nth-child(n + 2)
+    border-left: none
+  & div:nth-child(5)
+    border-radius: 0 8px 8px 0
+    border-left: none
+  +mixins.responsive-grid
 
-.active
-  border-color: $color-blue
-  border-width: 4px
+
+

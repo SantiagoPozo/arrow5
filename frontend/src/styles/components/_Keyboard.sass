@@ -1,47 +1,45 @@
 @use '../abstracts/variables' as *
 @use '../abstracts/mixins' as mixins
 
-// Keyboard styles extracted from _GameProgress.sass
 #keyboard
-  position: fixed
-  bottom: 1em
-  left: 50%
-  transform: translateX(-50%)
   display: grid
-  grid-template-columns: repeat(6, 50px)  // Fixed column width of 50px
-  grid-template-rows: repeat(3, auto)  
-  gap: 0.5em
+  width: clamp(320px, 100vw, 500px)
+  grid-template-columns: repeat(9, calc((100% - 32px) / 9)) 
+  grid-template-rows: repeat(2, auto)  
+  gap: 4px
   margin-top: 20px
-  & .present
-    border-color: $color-spy-says-yes
-    border-width: 3px
-    color: $color-spy-says-yes
-  & .absent
-    border-color: $color-spy-says-no
-    border-width: 3px
-    color: $color-spy-says-no
+  @media (max-width: 400px)
+    gap: 2px
 
-#send-button
-  grid-column: span 2
+#send-button, #delete-button
   text-transform: small-caps
   font-size: 0.8em
-
+#send-button
+  grid-column: span 2
 .key-button 
   +mixins.common-tile-keybutton
+  width: 100%
+  border-radius: 6px
+  display: flex
+  justify-content: center
+  align-items: center
   &:hover
     border-color: #bbf
-    border-width: 2px
+    border-width: 3px
   &.spy-says-no
-    border-color: $color-spy-says-no
-    color: $color-spy-says-no
-    border-width: 3px
+    border: 3px solid $color-red
+    color: $color-red
   &.spy-says-yes
-    border-color: $color-spy-says-yes
-    color: $color-spy-says-yes
-    border-width: 3px
+    border: 3px solid $color-green
+    color: $color-green
+  &.present
+    background-color: $color-green
+    color: white
+    border: none
+  &.absent
+    background-color: $color-red
+    color: white
+    border: none
   img 
-    height: 40px
+    height: 36px
 
-.active
-  border-color: $color-blue
-  border-width: 4px

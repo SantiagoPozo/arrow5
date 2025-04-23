@@ -1,0 +1,141 @@
+@use '../abstracts/variables' as *
+
+#create-game
+  form
+    font-size: 1.5em
+    display: flex
+    flex-direction: column
+    justify-content: center
+    gap: 0.5em
+    width: clamp(300px, 80vw, 600px)
+    margin: 0 auto
+    width: 100%
+
+    button
+      width: clamp(300px, 80vw, 100%)
+      margin: 0 auto
+      border-radius: 8px
+      height: 60px
+    input
+      width: clamp(300px, 80vw, 100%)
+      margin: 0 auto
+      font-size: 1em
+      padding: 0.5em
+      border-radius: 8px
+      border: 1px solid #aaa
+      text-align: center
+      &:focus
+        cursor: pointer
+
+#avatars-wrapper
+  display: flex
+  flex-direction: row
+  justify-content: center
+  @media (max-width: 400px)
+    flex-direction: column
+    align-items: center
+
+  & img.avatar
+    width: clamp(6em, 10vw, 12em)
+    cursor: pointer
+    padding: 8px
+    transition: all 0.2s ease
+
+  & div.avatar
+    will-change: filter
+    transition: filter 300ms
+    border-radius: 8px
+    border: 3px solid transparent
+    opacity: 0.7
+    &.she:hover
+      background-color: $color-green
+    &.he:hover
+      background-color: $color-red
+    &.they:hover
+      background-color: $color-blue
+    &.selected
+      opacity: 1
+      &.she
+        border: 3px solid $color-green
+      &.he
+        border: 3px solid $color-red
+      &.they
+        border: 3px solid $color-blue
+
+#difficulty-wrapper
+  margin: 1em 0
+  padding: 1em
+  border: 1px solid $color-light
+  border-radius: 8px
+
+  p
+    margin-bottom: 0.5em
+
+  .radio-options
+    display: flex
+    flex-direction: column
+    align-items: flex-start
+    gap: 0.3em
+
+    .radio-option
+      position: relative
+      display: flex
+      align-items: center
+
+      .radio-input-wrapper
+        display: flex
+        align-items: center
+        justify-content: center
+        width: 20px
+
+      label
+        position: relative
+        text-align: left
+        cursor: pointer
+        padding: 0.2em 0.4em
+
+        /* Tooltip personalizado */
+        .tooltip
+          position: absolute
+          top: 100%
+          left: 50%
+          transform: translateX(-50%)
+          width: clamp(320px, 80%, 40ch)
+          background-color: rgba(0, 0, 0, 0.8)
+          color: #fff
+          padding: 0.5em
+          border-radius: 4px
+          z-index: 10
+          white-space: pre-line
+          display: none  // Se oculta por defecto
+
+          p.description
+            margin: 0
+            color: $color-light
+          p.flavor
+            color: $color-light
+            margin: 0
+            font-style: italic
+            font-size: 0.9em
+            margin-top: 0.3em
+
+        /* Mostrar tooltip al hacer hover en el label */
+        &:hover .tooltip
+          display: block
+
+      input[type="radio"]
+        appearance: none
+        width: 20px
+        height: 20px
+        border: 2px solid $color-primary
+        border-radius: 50%
+        cursor: pointer
+        transition: border-color 0.3s, background-color 0.3s
+
+        &:hover
+          border-color: $color-primary-hover
+
+        &:checked
+          background-color: $color-primary-hover
+          border-color: $color-primary-hover
+

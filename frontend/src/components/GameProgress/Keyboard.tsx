@@ -48,7 +48,7 @@ const Keyboard: React.FC<KeyboardProps> = ({
   ];
 
   const actions: KeyInput[] = [
-    { type: "action", action: "delete", value: "␡" },
+    { type: "action", action: "delete", value: "DEL" },
     { type: "action", action: "send", value: "SEND" },
   ];
 
@@ -143,7 +143,13 @@ const Keyboard: React.FC<KeyboardProps> = ({
           isPresent === true ? "present" : isPresent === false ? "absent" : ""
         } ${isActive ? "active" : ""}`}
         onClick={handleClick}
-        id={keyInput.action === "send" ? "send-button" : undefined}
+        id={
+          keyInput.action === "send"
+            ? "send-button"
+            : keyInput.action === "delete"
+            ? "delete-button"
+            : ""
+        }
       >
         {value}
       </button>

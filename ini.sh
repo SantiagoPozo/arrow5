@@ -1,20 +1,16 @@
 #!/bin/bash
 
-# Start backend server
-echo "Starting backend server..."
-cd backend
-uvicorn main:app --reload &
-BACKEND_PID=$!
-cd ..
+# Start backend server in new terminal
+gnome-terminal -- bash -c "
+echo 'Starting backend server...';
+cd backend;
+uvicorn main:app --reload;
+exec bash" &
 
-# Start frontend server
-echo "Starting frontend server..."
-cd frontend
-npm run dev &
-FRONTEND_PID=$!
+# Start frontend server in new terminal
+gnome-terminal -- bash -c "
+echo 'Starting frontend server...';
+cd frontend;
+npm run dev;
+exec bash" &
 
-echo "Backend PID: $BACKEND_PID"
-echo "Frontend PID: $FRONTEND_PID"
-
-# Wait for both processes
-wait $BACKEND_PID $FRONTEND_PID

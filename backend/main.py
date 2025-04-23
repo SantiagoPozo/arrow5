@@ -4,8 +4,7 @@ from pydantic import Field, BaseModel
 from fastapi import FastAPI, WebSocket, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from random import sample
-from constants import *  # Se espera que ALPH y LENGTH estén definidos
-
+from constants import *  # Se espera que ALPH y CODE_LENGTH estén definidos
 
 origins = [
     "http://localhost:5173",
@@ -25,13 +24,10 @@ games = {}
 
 class Game(BaseModel):
     id: str
-    player: str = None
-    gender: str = "none"  # Valor por defecto
-    secret: str  # Asumimos que secret es una cadena
+    secret: str  
+    difficulty: str   # Se agrega la dificultad
     attempts: List[str] = Field(default_factory=list)
     responses: List[str] = Field(default_factory=list)
-    # Nueva estructura de clues: la clave es una tupla (attemptIndex, tileIndex)
-    # y el valor es un diccionario con la pista resultante.
     clues: Dict[Tuple[int, int], Dict[str, str]] = Field(default_factory=dict)
     
 @app.get("/")
@@ -41,7 +37,7 @@ async def root():
 
 class GameCreateRequest(BaseModel):
     playerName: str
-    gender: str = "none"  # Add gender field with default value
+    difficulty: str   # Ahora se recibe la dificultad
 
 @app.post("/games")
 async def create_game(data: GameCreateRequest):
@@ -49,20 +45,27 @@ async def create_game(data: GameCreateRequest):
     secret = generateCode(CODE_LENGTH)
     game = Game(
         id=game_id, 
-        player=data.playerName,
-        gender=data.gender, 
-        secret=secret
+        secret=secret,
+        difficulty=data.difficulty  # se almacena la dificultad recibida
     )
     games[game_id] = game
-    return game
+    print("Game created:", game_id)
+    print("game", game)
+    return game.id
 
 @app.get("/games/{game_id}")
 async def get_game(game_id: str):
     if game_id not in games:
         raise HTTPException(status_code=404, detail="Game not found")
-    return games[game_id]
+    game = games[game_id]
+    # Return game data without exposing the secret
+    return {
+        "id": game.id,
+        "attempts": game.attempts,
+        "responses": game.responses,
+        "clues": game.clues
+    }
 
-# Nuevo endpoint para enviar un intento y evaluar
 class AttemptRequest(BaseModel):
     attempt: str
 
@@ -75,35 +78,42 @@ async def submit_attempt(game_id: str, data: AttemptRequest):
         result = evaluate(game.secret, data.attempt)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    # Actualizar el estado del juego (opcional)
     game.attempts.append(data.attempt)
     game.responses.append(result)
     print(game.secret)
     return {"result": result}
 
-# Change from POST to GET and use query parameters
 @app.get("/games/{game_id}/clue")
 async def get_clue(game_id: str, attemptIndex: int, tileIndex: int):
     if game_id not in games:
         raise HTTPException(status_code=404, detail="Game not found")
     game = games[game_id]
-
-# Only one clue per attempt
-    # if attemptIndex in game.clues:
-    #     raise HTTPException(status_code=400, detail="Clue for this attempt index has already been requested")
-    # Validate the indexes
+    
+    # Validar índices
     if attemptIndex < 0 or attemptIndex >= len(game.attempts):
         raise HTTPException(status_code=400, detail="Invalid attempt index")
-    
-    attempt = game.attempts[attemptIndex]
     
     if tileIndex < 0 or tileIndex >= CODE_LENGTH:
         raise HTTPException(status_code=400, detail="Invalid tile index")
     
+    # Validar límites de pistas según la dificultad
+    if game.difficulty == "0":
+        raise HTTPException(status_code=400, detail="No clues allowed for this difficulty")
+    elif game.difficulty == "1":
+        if game.clues:  # si ya hay al menos una pista, no se permite más
+            raise HTTPException(status_code=400, detail="Only one clue allowed for this game")
+    elif game.difficulty == "n":
+        # Una pista por intento
+        clues_for_attempt = [k for k in game.clues.keys() if k[0] == attemptIndex]
+        if clues_for_attempt:
+            raise HTTPException(status_code=400, detail="Only one clue allowed per attempt")
+    elif game.difficulty == "5n":
+        # Clues ilimitadas, no se valida nada
+        pass
+
     # Crear la clave como tupla
     key: Tuple[int, int] = (attemptIndex, tileIndex)
     
-    # Si esa pista ya fue solicitada, interrumpir el proceso
     if key in game.clues:
         raise HTTPException(
             status_code=400,
@@ -111,11 +121,11 @@ async def get_clue(game_id: str, attemptIndex: int, tileIndex: int):
         )
     
     try:
-        clue_str = clue(game.secret, attempt, tileIndex)
+        clue_str = clue(game.secret, game.attempts[attemptIndex], tileIndex)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     
-    # Actualizamos clues usando la nueva estructura:
+    # Almacenar la pista
     game.clues[key] = {"result": clue_str}
     print(game.clues)
     return {"clue": clue_str}
@@ -133,9 +143,8 @@ def evaluate(secret: str, attempt: str) -> str:
     for i, a in enumerate(attempt):
         if a in set(secret):
             if a == secret[i]:
-                result += "=" # s for steady
+                result += "="  # steady symbol
             else:
-                #index of a in secret
                 index = secret.index(a)
                 if index < i:
                     result += "<"
@@ -145,7 +154,6 @@ def evaluate(secret: str, attempt: str) -> str:
 
 def clue(secret: str, attempt: str, position: int) -> str:
     print(secret, attempt, position)
-
     symbol = attempt[position]
     if symbol not in secret:
         return "absent"

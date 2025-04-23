@@ -6,6 +6,7 @@ import Keyboard from "./GameProgress/Keyboard";
 import { KeyInput, AttemptData, ClueData } from "./types";
 import sheSpy from "./../assets/she.png";
 import heSpy from "./../assets/he.png";
+import theySpy from "./../assets/they.png";
 
 type GameProgressProps = {
   gameStatus: string;
@@ -29,7 +30,6 @@ const GameProgress: React.FC<GameProgressProps> = ({
   const [playerName, setPlayerName] = useState<string>("");
   const [gender, setGender] = useState<string>("none");
 
-  // Estado para clues.
   const initialInfo: ClueData = {
     "0": { present: undefined, possiblePositions: new Set([0, 1, 2, 3, 4]) },
     "1": { present: undefined, possiblePositions: new Set([0, 1, 2, 3, 4]) },
@@ -46,7 +46,7 @@ const GameProgress: React.FC<GameProgressProps> = ({
   };
   const [clueData, setClueData] = useState<ClueData>(initialInfo);
 
-  // Estado para los colores asignados a los caracteres del teclado (actualizamos los tipos)
+  // Estado para los colores asignados a los caracteres del teclado
   const [keyColors, setKeyColors] = useState<
     Record<string, "spy-says-no" | "spy-says-yes">
   >({});
@@ -54,9 +54,18 @@ const GameProgress: React.FC<GameProgressProps> = ({
   const fetchGameState = async () => {
     try {
       const response = await axios.get(`http://localhost:8000/games/${gameId}`);
+      // Se actualiza solo el attemptData porque la API ya no envía player ni gender
       setAttemptData(response.data);
-      setPlayerName(response.data.player);
-      setGender(response.data.gender || "none");
+      // Se recupera el active player de localStorage
+      const activePlayer = localStorage.getItem("activePlayer") || "";
+      setPlayerName(activePlayer);
+      // Si se deseara recuperar el avatar asociado, se podría obtener desde localStorage "players"
+      const playersStr = localStorage.getItem("players");
+      if (playersStr) {
+        const players = JSON.parse(playersStr);
+        const found = players.find((p: any) => p.name === activePlayer);
+        setGender(found ? found.avatar : "none");
+      }
       if (process.env.NODE_ENV !== "production") {
         console.log("response.data", response.data);
       }
@@ -86,10 +95,9 @@ const GameProgress: React.FC<GameProgressProps> = ({
           onGameFinished();
         }, 1000);
       }
-      return true; // Indica éxito
+      return true;
     } catch (err) {
       console.error("Error submitting attempt", err);
-      // Si es AxiosError y tiene el detalle enviado por el servidor, lo usamos.
       if (
         axios.isAxiosError(err) &&
         err.response &&
@@ -99,7 +107,7 @@ const GameProgress: React.FC<GameProgressProps> = ({
       } else {
         setError("Error submitting attempt");
       }
-      return false; // Indica error
+      return false;
     }
   };
 
@@ -114,51 +122,45 @@ const GameProgress: React.FC<GameProgressProps> = ({
           {gender === "he" && (
             <img src={heSpy} alt="He Spy" className="avatar-image" />
           )}
-          {gender === "both" && (
-            <>
-              <img src={sheSpy} alt="She Spy" className="avatar-image" />
-              <img src={heSpy} alt="He Spy" className="avatar-image" />
-            </>
+          {gender === "they" && (
+            <img src={theySpy} alt="They Spy" className="avatar-image" />
           )}
         </div>
       </header>
       {error && <p className="error">{error}</p>}
-      <div>
-        <h3>Attempts</h3>
-        <Gameboard
-          attemptData={attemptData}
-          setError={setError}
-          setClueData={setClueData} // Se pasa setClueData para que Gameboard pueda gestionar las pistas
-          gameId={gameId}
-          keyColors={keyColors} // Pasamos los colores al tablero
-          clueData={clueData} // Passing the clueData state to Gameboard
-        />
-        {gameStatus === "IN_PROGRESS" && (
-          <>
-            <InputTiles
-              keyboardInput={tileInput}
-              setKeyboardInput={setTileInput}
-              setError={setError}
-              onComplete={async (attempt) => {
-                const success = await handleAttemptSubmit(attempt);
-                return success; // true si se envió correctamente, false en caso de error
-              }}
-            />
-            <Keyboard
-              clueData={clueData}
-              onKeyInput={(val) => setTileInput(val)}
-              keyColors={keyColors} // Pasamos los colores al teclado
-              setKeyColors={setKeyColors} // Pasamos el setter
-            />
-          </>
-        )}
-        {gameStatus === "FINISHED" && (
-          <div>
-            <p>You win</p>
-            <button onClick={() => startNewGame(gameId)}>Restart Game</button>
-          </div>
-        )}
-      </div>
+      <Gameboard
+        attemptData={attemptData}
+        setError={setError}
+        setClueData={setClueData}
+        gameId={gameId}
+        keyColors={keyColors}
+        clueData={clueData}
+      />
+      {gameStatus === "IN_PROGRESS" && (
+        <>
+          <InputTiles
+            keyboardInput={tileInput}
+            setKeyboardInput={setTileInput}
+            setError={setError}
+            onComplete={async (attempt) => {
+              const success = await handleAttemptSubmit(attempt);
+              return success;
+            }}
+          />
+          <Keyboard
+            clueData={clueData}
+            onKeyInput={(val) => setTileInput(val)}
+            keyColors={keyColors}
+            setKeyColors={setKeyColors}
+          />
+        </>
+      )}
+      {gameStatus === "FINISHED" && (
+        <div>
+          <p>You win</p>
+          <button onClick={() => startNewGame(gameId)}>Restart Game</button>
+        </div>
+      )}
     </>
   );
 };

@@ -36,12 +36,10 @@ const ResultChar: React.FC<ResultCharProps> = ({ children }) => {
       {result.split("").map((char, index) => (
         <div
           key={index}
-          className={`result-char ${
-            char === "=" ? "steady" : char === "<" || char === ">" ? "move" : ""
-          }`}
+          className={`result-char ${char === "=" ? "steady" : "move"}`}
           style={{ visibility: index < visibleChars ? "visible" : "hidden" }}
         >
-          {char}
+          {char === "=" ? "◎" : char === ">" ? "🠊" : char === "<" ? "🠈" : ""}
         </div>
       ))}
     </div>
