@@ -27,46 +27,12 @@
       &:focus
         cursor: pointer
 
-#avatars-wrapper
-  display: flex
-  flex-direction: row
-  justify-content: center
-  @media (max-width: 400px)
-    flex-direction: column
-    align-items: center
-
-  & img.avatar
-    width: clamp(6em, 10vw, 12em)
-    cursor: pointer
-    padding: 8px
-    transition: all 0.2s ease
-
-  & div.avatar
-    will-change: filter
-    transition: filter 300ms
-    border-radius: 8px
-    border: 3px solid transparent
-    opacity: 0.7
-    &.she:hover
-      background-color: $color-green
-    &.he:hover
-      background-color: $color-red
-    &.they:hover
-      background-color: $color-blue
-    &.selected
-      opacity: 1
-      &.she
-        border: 3px solid $color-green
-      &.he
-        border: 3px solid $color-red
-      &.they
-        border: 3px solid $color-blue
-
 #difficulty-wrapper
   margin: 1em 0
   padding: 1em
   border: 1px solid $color-light
   border-radius: 8px
+  font-size: clamp(12pt, 4vw, 18pt)
 
   p
     margin-bottom: 0.5em
@@ -98,9 +64,9 @@
         .tooltip
           position: absolute
           top: 100%
-          left: 50%
+          left: 140px
           transform: translateX(-50%)
-          width: clamp(320px, 80%, 40ch)
+          width: 280px
           background-color: rgba(0, 0, 0, 0.8)
           color: #fff
           padding: 0.5em

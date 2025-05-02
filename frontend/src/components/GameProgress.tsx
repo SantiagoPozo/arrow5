@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import Gameboard from "./GameProgress/Gameboard";
 import InputTiles from "./GameProgress/InputTiles";
@@ -111,6 +111,45 @@ const GameProgress: React.FC<GameProgressProps> = ({
     }
   };
 
+  const hideErrorTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clearErrorTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function showError() {
+    const errorEl = document.getElementById("error");
+    if (errorEl) errorEl.classList.add("opaque");
+  }
+
+  function hideError() {
+    const errorEl = document.getElementById("error");
+    if (errorEl) errorEl.classList.remove("opaque");
+  }
+
+  function flashError() {
+    // cancel any pending timers
+    if (hideErrorTimeout.current) {
+      clearTimeout(hideErrorTimeout.current);
+    }
+    if (clearErrorTimeout.current) {
+      clearTimeout(clearErrorTimeout.current);
+    }
+
+    // show and then schedule hide/clear
+    showError();
+    hideErrorTimeout.current = setTimeout(hideError, 4000);
+    clearErrorTimeout.current = setTimeout(() => setError(""), 4500);
+  }
+
+  useEffect(() => {
+    if (error && error.trim() !== "") {
+      flashError();
+    }
+    // cleanup on unmount
+    return () => {
+      if (hideErrorTimeout.current) clearTimeout(hideErrorTimeout.current);
+      if (clearErrorTimeout.current) clearTimeout(clearErrorTimeout.current);
+    };
+  }, [error]);
+
   return (
     <>
       <header>
@@ -127,15 +166,17 @@ const GameProgress: React.FC<GameProgressProps> = ({
           )}
         </div>
       </header>
-      {error && <p className="error">{error}</p>}
-      <Gameboard
-        attemptData={attemptData}
-        setError={setError}
-        setClueData={setClueData}
-        gameId={gameId}
-        keyColors={keyColors}
-        clueData={clueData}
-      />
+      <div>
+        <p id="error">{error}</p>
+        <Gameboard
+          attemptData={attemptData}
+          setError={setError}
+          setClueData={setClueData}
+          gameId={gameId}
+          keyColors={keyColors}
+          clueData={clueData}
+        />
+      </div>
       {gameStatus === "IN_PROGRESS" && (
         <>
           <InputTiles
@@ -158,7 +199,7 @@ const GameProgress: React.FC<GameProgressProps> = ({
       {gameStatus === "FINISHED" && (
         <div>
           <p>You win</p>
-          <button onClick={() => startNewGame(gameId)}>Restart Game</button>
+          <button onClick={() => startNewGame(gameId)}>Play again</button>
         </div>
       )}
     </>

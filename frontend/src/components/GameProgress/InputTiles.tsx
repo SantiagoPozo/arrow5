@@ -12,7 +12,6 @@ interface InputTilesProps {
 const InputTiles: React.FC<InputTilesProps> = ({
   keyboardInput,
   setKeyboardInput,
-  setError,
   onComplete,
 }) => {
   const [tiles, setTiles] = useState<string[]>(["", "", "", "", ""]);

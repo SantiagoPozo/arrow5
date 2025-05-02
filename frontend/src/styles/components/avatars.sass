@@ -1,0 +1,34 @@
+@use '../abstracts/variables' as *
+
+#avatars-wrapper
+  display: grid
+  width: clamp(320px, 100vw, 500px)
+  grid-template-columns: repeat(3, 1fr)
+  grid-template-rows: repeat(2, auto)  
+
+  & img.avatar
+    width: 100%
+    cursor: pointer
+    padding: 8px
+    transition: all 0.2s ease
+
+  & div.avatar
+    will-change: filter
+    transition: filter 300ms
+    border-radius: 8px
+    border: 3px solid transparent
+    opacity: 0.7
+    &.she:hover
+      background-color: $color-green
+    &.he:hover
+      background-color: $color-red
+    &.they:hover
+      background-color: $color-blue
+    &.selected
+      opacity: 1
+      &.she
+        border: 3px solid $color-green
+      &.he
+        border: 3px solid $color-red
+      &.they
+        border: 3px solid $color-blue
