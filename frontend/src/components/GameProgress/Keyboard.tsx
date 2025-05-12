@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { KeyInput as BaseKeyInput } from "../types";
+import renderIcon from "../auxiliar";
 
 // Extend KeyInput type to include color actions
 type KeyInput =
@@ -22,29 +23,26 @@ type KeyboardProps = {
   >;
 };
 
-const Keyboard: React.FC<KeyboardProps> = ({
+export default function Keyboard({
   onKeyInput,
   clueData,
   keyColors,
   setKeyColors,
-}) => {
+}: KeyboardProps) {
   const [colorMode, setColorMode] = useState<
     "spySaysNo" | "spySaysYes" | "clear" | null
   >(null);
 
   const characters: KeyInput[] = [
-    { type: "character", value: "0" },
-    { type: "character", value: "1" },
-    { type: "character", value: "2" },
-    { type: "character", value: "3" },
-    { type: "character", value: "4" },
-    { type: "character", value: "5" },
-    { type: "character", value: "6" },
-    { type: "character", value: "7" },
-    { type: "character", value: "8" },
-    { type: "character", value: "9" },
-    { type: "character", value: "x" },
-    { type: "character", value: "y" },
+    ...["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].map(
+      (v) =>
+        ({
+          type: "character",
+          value: v,
+        } as KeyInput)
+    ),
+    { type: "character", value: "x" } as KeyInput,
+    { type: "character", value: "y" } as KeyInput,
   ];
 
   const actions: KeyInput[] = [
@@ -151,15 +149,15 @@ const Keyboard: React.FC<KeyboardProps> = ({
             : ""
         }
       >
-        {value}
+        {renderIcon(keyInput.value)}
       </button>
     );
   };
 
   return (
     <div id="keyboard" className={getCursorClass()}>
-      {characters.map((key, i) => (
-        <KeyButton key={i} keyInput={key} onKeyInput={onKeyInput} />
+      {characters.map((k, i) => (
+        <KeyButton key={i} keyInput={k} onKeyInput={onKeyInput} />
       ))}
       {colorActions.map((key, i) => (
         <KeyButton key={`color-${i}`} keyInput={key} onKeyInput={onKeyInput} />
@@ -169,6 +167,4 @@ const Keyboard: React.FC<KeyboardProps> = ({
       ))}
     </div>
   );
-};
-
-export default Keyboard;
+}

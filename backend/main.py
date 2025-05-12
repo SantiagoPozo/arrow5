@@ -25,7 +25,8 @@ games = {}
 class Game(BaseModel):
     id: str
     secret: str  
-    difficulty: str   # Se agrega la dificultad
+    difficulty: str
+    obfuscation: bool  # Cambiado a bool para mejor tipado
     attempts: List[str] = Field(default_factory=list)
     responses: List[str] = Field(default_factory=list)
     clues: Dict[Tuple[int, int], Dict[str, str]] = Field(default_factory=dict)
@@ -37,19 +38,22 @@ async def root():
 
 class GameCreateRequest(BaseModel):
     playerName: str
-    difficulty: str   # Ahora se recibe la dificultad
+    difficulty: str
+    obfuscation: bool  # Corregido el nombre y cambiado a bool
 
 @app.post("/games")
 async def create_game(data: GameCreateRequest):
     game_id = str(uuid.uuid4())
-    secret = generateCode(CODE_LENGTH)
+    secret = generateCode(CODE_LENGTH, data.obfuscation)  # Pasar obfuscation a generateCode
     game = Game(
         id=game_id, 
         secret=secret,
-        difficulty=data.difficulty  # se almacena la dificultad recibida
+        difficulty=data.difficulty,
+        obfuscation=data.obfuscation,  # Corregido el nombre
     )
     games[game_id] = game
-    print("Game created:", game_id)
+    print("\n\nGame created:", game_id)
+    print("secret", game.secret)
     print("game", game)
     return game.id
 
@@ -75,7 +79,7 @@ async def submit_attempt(game_id: str, data: AttemptRequest):
         raise HTTPException(status_code=404, detail="Game not found")
     game = games[game_id]
     try:
-        result = evaluate(game.secret, data.attempt)
+        result = evaluate(game.secret, data.attempt, game.obfuscation)  # Pasar obfuscation a evaluate
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     game.attempts.append(data.attempt)
@@ -130,17 +134,34 @@ async def get_clue(game_id: str, attemptIndex: int, tileIndex: int):
     print(game.clues)
     return {"clue": clue_str}
 
-def generateCode(k: int) -> str:
-    code = sample(ALPH[0:11], k)
+def generateCode(k: int, obfuscation: bool = False) -> str:
+    # Si hay obfuscación, se incluye la letra 'y' en el conjunto de caracteres posibles
+    if obfuscation:
+        code = sample(ALPH[0:12], k)  # Incluye 'y' (índice 11)
+    else:
+        code = sample(ALPH[0:11], k)  # Sin 'y'
     return "".join(code)
 
-def evaluate(secret: str, attempt: str) -> str:
+def evaluate(secret: str, attempt: str, obfuscation: bool = False) -> str:
     if len(attempt) < CODE_LENGTH: 
         raise ValueError("Attempt needs to be 5 characters long")
     if len(attempt) == CODE_LENGTH and len(set(attempt)) < CODE_LENGTH:
         raise ValueError("Attempt needs to have 5 different characters")
+    
     result = ""
     for i, a in enumerate(attempt):
+        if secret == attempt:
+            return "=" * CODE_LENGTH
+        
+        if obfuscation:
+            if a == 'y':
+                continue
+                
+            if a == 'x':
+                result += "="
+                continue
+        
+        # Comportamiento normal para otros caracteres
         if a in set(secret):
             if a == secret[i]:
                 result += "="  # steady symbol
@@ -150,19 +171,25 @@ def evaluate(secret: str, attempt: str) -> str:
                     result += "<"
                 else:
                     result += ">"
+                    
     return result
 
 def clue(secret: str, attempt: str, position: int) -> str:
-    print(secret, attempt, position)
+    print("\033[32m\n\nClue requested\033[0m")
+    print("secret   ", "attempt  ", "position ")
+    print(f"{secret:10}{attempt:10}{position}")
+
+    result = "absent"
     symbol = attempt[position]
-    if symbol not in secret:
-        return "absent"
-    real_position = secret.index(symbol)
-    print(f"real position: {real_position}")
-    if real_position == position:
-        return "steady"
-    elif real_position < position:
-        return "left"
-    else:
-        return "right"
+    if symbol in secret:
+        real_position = secret.index(symbol)
+        print(f"  real position: {real_position}")
+        if real_position == position:
+            result = "steady"
+        elif real_position < position:
+            result = "left"
+        else:
+            result = "right"
+    print(f"result: '{result}'")
+    return result
 

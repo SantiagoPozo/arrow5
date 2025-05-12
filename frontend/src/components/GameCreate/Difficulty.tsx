@@ -8,21 +8,21 @@ type DifficultyProps = {
 const OPTIONS = [
   {
     id: "phantom-mode",
-    label: "Unforgiving Phantom Mode",
+    label: "Unforgiving Phantom",
     value: "0",
     description: "Clues cannot be requested.",
     flavor: "You are in danger, they know who you are.",
   },
   {
     id: "shadow-mode",
-    label: "Single‑Clue Shadow Mode",
+    label: "Single‑Clue Shadow",
     value: "1",
     description: "Only one clue per game.",
     flavor: "They know there is an infiltrator. They are paranoid.",
   },
   {
     id: "tactical-mode",
-    label: "Tactical Advance Mode",
+    label: "Tactical Advance",
     value: "n",
     description: "One clue per attempt.",
     flavor: "They trust you, but sometimes you feel someone is watching you.",

@@ -15,7 +15,7 @@
   flex-wrap: nowrap
   align-items: center
   justify-content: left
-  margin-top: 20px
+  margin-top: 14px
   min-width: 320px
 
 .attempt
@@ -111,6 +111,18 @@
     box-shadow: 0 0 5px $color-blue   
   &:focus
     outline: none
+
+.input-tile, .tile
+  img 
+    will-change: width
+    transition: width 0.2s ease
+    width: 32px
+    border-radius: 8px
+    @media (min-width: 401px)
+      width: 36px
+
+  &.active
+    box-shadow: 0 0 5px $color-blue
 .input-tiles  
   display: grid
   margin-top: 20px
@@ -125,5 +137,21 @@
     border-left: none
   +mixins.responsive-grid
 
-
-
+#game-over
+  p
+    font-size: 1.5em
+    color: $color-dark
+    margin-bottom: 20px
+  button
+    font-size: 2em
+    border-radius: 8px
+    padding: 10px
+    border: none
+    cursor: pointer
+    transition: all 0.2s ease
+    border: 2px solid $color-green
+    will-change: transform
+    &:hover
+      transform: scale(1.01)
+    &:active
+      transform: scale(0.99)

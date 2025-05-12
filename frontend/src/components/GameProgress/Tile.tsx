@@ -67,7 +67,9 @@ const Tile: React.FC<TileProps> = ({
       console.log("Clue received:", clue);
       setCssClasses(
         `${cssClasses} clue-required ${clue} ${
-          clue === "left" || clue === "right" ? "present" : ""
+          clue === "left" || clue === "right" || clue === "steady"
+            ? "present"
+            : ""
         }`
       );
       handleClueReceived({ attemptIndex, tileIndex, clue });
@@ -111,18 +113,19 @@ const Tile: React.FC<TileProps> = ({
 
       if (data.clue === "absent") {
         newDigitClue[digit].present = false;
-      } else if (data.clue === "steady") {
-        newDigitClue[digit].present = true;
+        return newDigitClue;
+      }
+
+      newDigitClue[digit].present = true;
+      if (data.clue === "steady") {
         newDigitClue[digit].possiblePositions = new Set([data.tileIndex]);
       } else if (data.clue === "right") {
-        newDigitClue[digit].present = true;
         newDigitClue[digit].possiblePositions = new Set(
           Array.from(newDigitClue[digit].possiblePositions).filter(
             (position) => position > data.tileIndex
           )
         );
       } else if (data.clue === "left") {
-        newDigitClue[digit].present = true;
         newDigitClue[digit].possiblePositions = new Set(
           Array.from(newDigitClue[digit].possiblePositions).filter(
             (position) => position < data.tileIndex
@@ -133,19 +136,6 @@ const Tile: React.FC<TileProps> = ({
     });
     console.log("Clue processed:", data);
   };
-
-  if (
-    clueData[character]?.present === false &&
-    !cssClasses.includes("absent")
-  ) {
-    setCssClasses((prev) => prev + " absent");
-  }
-  if (
-    clueData[character]?.present === true &&
-    !cssClasses.includes("present")
-  ) {
-    setCssClasses((prev) => prev + " present");
-  }
 
   return (
     <div className={cssClasses} onClick={handleClueRequest}>

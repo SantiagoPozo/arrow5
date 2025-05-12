@@ -2,37 +2,41 @@ import React, { useState, FormEvent, useEffect } from "react";
 import axios from "axios";
 import Avatar from "./GameCreate/Avatars";
 import Difficulty from "./GameCreate/Difficulty";
+import Mode from "./GameCreate/Mode";
 
-// Actualizamos la interfaz Player para incluir el avatar.
+// Actualizamos la interfaz Player para incluir obfuscation
 export interface Player {
   name: string;
   avatar: "she" | "he" | "they";
-  difficulty: string; // Se almacena el nivel de dificultad con el que jugó
+  difficulty: string;
+  obfuscation: boolean; // Añadido campo para obfuscation
   number_of_games: number;
 }
 
 export function managePlayer(
   playerName: string,
   difficulty: string,
-  avatar: "she" | "he" | "they"
+  avatar: "she" | "he" | "they",
+  obfuscation: boolean // Añadido parámetro para obfuscation
 ): void {
   const savedPlayers = localStorage.getItem("players");
   const players: Player[] = savedPlayers ? JSON.parse(savedPlayers) : [];
   const index = players.findIndex((p) => p.name === playerName);
 
   if (index === -1) {
-    // Se guarda el jugador con el nivel de dificultad y avatar seleccionado
     players.push({
       name: playerName,
       difficulty,
       avatar,
+      obfuscation,
       number_of_games: 1,
     });
   } else {
     players[index].number_of_games += 1;
-    // Actualizamos la dificultad y el avatar (podrían cambiar a cada partida)
+    // Actualizamos todos los datos que podrían cambiar
     players[index].difficulty = difficulty;
     players[index].avatar = avatar;
+    players[index].obfuscation = obfuscation; // Actualizamos la preferencia de obfuscación
   }
   localStorage.setItem("players", JSON.stringify(players));
   localStorage.setItem("activePlayer", playerName);
@@ -59,6 +63,7 @@ const CreateGame: React.FC<CreateGameProps> = ({ onGameCreated }) => {
     "she"
   );
   const [selectedDifficulty, setSelectedDifficulty] = useState("n");
+  const [obfuscation, setObfuscation] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -69,6 +74,10 @@ const CreateGame: React.FC<CreateGameProps> = ({ onGameCreated }) => {
       if (p) {
         setSelectedAvatar(p.avatar);
         setSelectedDifficulty(p.difficulty);
+        // Recuperamos la preferencia de obfuscación si existe
+        if (p.obfuscation !== undefined) {
+          setObfuscation(p.obfuscation);
+        }
       }
     }
   }, []);
@@ -81,9 +90,11 @@ const CreateGame: React.FC<CreateGameProps> = ({ onGameCreated }) => {
       const res = await axios.post("http://127.0.0.1:8000/games", {
         playerName,
         difficulty: selectedDifficulty,
+        obfuscation: obfuscation,
       });
       onGameCreated(res.data);
-      managePlayer(playerName, selectedDifficulty, selectedAvatar);
+      // Incluimos obfuscation en el guardado
+      managePlayer(playerName, selectedDifficulty, selectedAvatar, obfuscation);
     } catch (err) {
       console.error(err);
     } finally {
@@ -105,6 +116,7 @@ const CreateGame: React.FC<CreateGameProps> = ({ onGameCreated }) => {
           setSelectedDifficulty={setSelectedDifficulty}
         />
 
+        <Mode obfuscation={obfuscation} setObfuscation={setObfuscation} />
         <input
           type="text"
           id="playerName"

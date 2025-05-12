@@ -8,12 +8,27 @@ import sheSpy from "./../assets/she.png";
 import heSpy from "./../assets/he.png";
 import theySpy from "./../assets/they.png";
 
+// Mensajes de victoria/derrota basados en el número de intentos
+const messages = [
+  "Your psychic vision shattered the enemy's codes—our victory in this war is complete.",
+  "With your psychic insight, you've unraveled their secret transmissions; the balance of war tilts toward us.",
+  "Your mind broke through the encryption—our forces surge forward with unstoppable momentum.",
+  "Another cipher falls to your telepathic skills; the war effort advances by leaps.",
+  "You've cracked the last cipher. Nothing stays hidden now.",
+  "The final code lies open, yet the fight continues in uneasy darkness.",
+  "You've decrypted the message, but the front grows perilous and our advantage wanes.",
+  "Your codebreaking arrives amid chaos; hope flickers as challenges mount.",
+  "You failed to decipher the message in time. We are left in the dark.",
+];
+
 type GameProgressProps = {
   gameStatus: string;
   gameId: string;
   onGameFinished: () => void;
   startNewGame: (id: string) => void;
 };
+
+const MAX_ATTEMPTS = 8;
 
 const GameProgress: React.FC<GameProgressProps> = ({
   gameId,
@@ -45,11 +60,36 @@ const GameProgress: React.FC<GameProgressProps> = ({
     y: { present: false, possiblePositions: new Set<number>() },
   };
   const [clueData, setClueData] = useState<ClueData>(initialInfo);
+  const [numOfAttempts, setNumOfAttempts] = useState<number>(-1);
 
   // Estado para los colores asignados a los caracteres del teclado
   const [keyColors, setKeyColors] = useState<
     Record<string, "spy-says-no" | "spy-says-yes">
   >({});
+
+  // En GameProgress.tsx, añade un nuevo useEffect para registrar attemptData:
+  if (process.env.NODE_ENV !== "production") {
+    console.log("attemptData cambiado:", attemptData);
+  }
+  useEffect(() => {
+    const lastResponse =
+      attemptData.responses[attemptData.responses.length - 1];
+    attemptData.responses && console.log("last response:", lastResponse);
+    if (lastResponse === "=====") {
+      setTimeout(() => {
+        onGameFinished();
+      }, 1000);
+    }
+    if (
+      lastResponse !== "=====" &&
+      attemptData.responses.length === MAX_ATTEMPTS
+    ) {
+      setNumOfAttempts((prevNum) => prevNum + 1);
+      setTimeout(() => {
+        onGameFinished();
+      }, 1000);
+    }
+  }, [attemptData]);
 
   const fetchGameState = async () => {
     try {
@@ -90,11 +130,21 @@ const GameProgress: React.FC<GameProgressProps> = ({
         attempts: [...prev.attempts, attempt],
         responses: [...prev.responses, last_response],
       }));
-      if (last_response === "=====") {
-        setTimeout(() => {
-          onGameFinished();
-        }, 1000);
-      }
+      setNumOfAttempts((prevNum) => prevNum + 1);
+
+      // if (last_response === "=====") {
+      //   setTimeout(() => {
+      //     onGameFinished();
+      //   }, 1000);
+      // } else {
+      //   // si el número de intentos es 8, se considera que el juego ha terminado
+      //   if (attemptData.responses.length === MAX_ATTEMPTS) {
+      //     setTimeout(() => {
+      //       onGameFinished();
+      //     }, 1000);
+      //   }
+      // }
+
       return true;
     } catch (err) {
       console.error("Error submitting attempt", err);
@@ -197,8 +247,8 @@ const GameProgress: React.FC<GameProgressProps> = ({
         </>
       )}
       {gameStatus === "FINISHED" && (
-        <div>
-          <p>You win</p>
+        <div id="game-over">
+          <p>{messages[numOfAttempts]}</p>
           <button onClick={() => startNewGame(gameId)}>Play again</button>
         </div>
       )}

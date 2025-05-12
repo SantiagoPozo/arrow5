@@ -1,4 +1,5 @@
 import React, { forwardRef } from "react";
+import renderIcon from "../auxiliar";
 
 export interface InputTileProps {
   value: string;
@@ -15,9 +16,10 @@ const InputTile = forwardRef<HTMLDivElement, InputTileProps>(
         tabIndex={0}
         onFocus={onFocus}
         onKeyDown={onKeyDown}
+        data-value={value}
         className={`tile input-tile ${active ? "active" : ""}`}
       >
-        {value}
+        {renderIcon(value)}
       </div>
     );
   }

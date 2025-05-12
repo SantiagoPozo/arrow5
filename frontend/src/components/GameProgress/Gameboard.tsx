@@ -2,6 +2,7 @@ import React from "react";
 import Tile from "./Tile";
 import ResultChar from "./ResultChar";
 import { AttemptData, ClueData } from "../types";
+import renderIcon from "../auxiliar";
 
 interface GameboardProps {
   attemptData: AttemptData;
@@ -36,8 +37,9 @@ const Gameboard: React.FC<GameboardProps> = ({
                 clueData={clueData}
                 attempt={at}
                 keyColor={keyColors[character]}
+                data-value={character}
               >
-                {character}
+                {renderIcon(character)}
               </Tile>
             ))}
           </div>
