@@ -26,7 +26,8 @@ class Game(BaseModel):
     id: str
     secret: str  
     difficulty: str
-    obfuscation: bool  # Cambiado a bool para mejor tipado
+    obfuscation: bool
+    solved: bool = False  # Nuevo campo para rastrear si el juego ha sido resuelto
     attempts: List[str] = Field(default_factory=list)
     responses: List[str] = Field(default_factory=list)
     clues: Dict[Tuple[int, int], Dict[str, str]] = Field(default_factory=dict)
@@ -39,17 +40,18 @@ async def root():
 class GameCreateRequest(BaseModel):
     playerName: str
     difficulty: str
-    obfuscation: bool  # Corregido el nombre y cambiado a bool
+    obfuscation: bool
 
 @app.post("/games")
 async def create_game(data: GameCreateRequest):
     game_id = str(uuid.uuid4())
-    secret = generateCode(CODE_LENGTH, data.obfuscation)  # Pasar obfuscation a generateCode
+    secret = generateCode(CODE_LENGTH, data.obfuscation)
     game = Game(
         id=game_id, 
         secret=secret,
         difficulty=data.difficulty,
-        obfuscation=data.obfuscation,  # Corregido el nombre
+        obfuscation=data.obfuscation,
+        solved=False,  # Inicialmente no está resuelto
     )
     games[game_id] = game
     print("\n\nGame created:", game_id)
@@ -67,7 +69,8 @@ async def get_game(game_id: str):
         "id": game.id,
         "attempts": game.attempts,
         "responses": game.responses,
-        "clues": game.clues
+        "clues": game.clues,
+        "solved": game.solved  # Incluir el estado de resolución en la respuesta
     }
 
 class AttemptRequest(BaseModel):
@@ -79,13 +82,19 @@ async def submit_attempt(game_id: str, data: AttemptRequest):
         raise HTTPException(status_code=404, detail="Game not found")
     game = games[game_id]
     try:
-        result = evaluate(game.secret, data.attempt, game.obfuscation)  # Pasar obfuscation a evaluate
+        result, is_solved = evaluate(game.secret, data.attempt, game.obfuscation)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
     game.attempts.append(data.attempt)
     game.responses.append(result)
+    
+    # Actualizamos el estado de resolución del juego
+    if is_solved:
+        game.solved = True
+        
     print(game.secret)
-    return {"result": result}
+    return {"result": result, "solved": is_solved}
 
 @app.get("/games/{game_id}/clue")
 async def get_clue(game_id: str, attemptIndex: int, tileIndex: int):
@@ -142,16 +151,19 @@ def generateCode(k: int, obfuscation: bool = False) -> str:
         code = sample(ALPH[0:11], k)  # Sin 'y'
     return "".join(code)
 
-def evaluate(secret: str, attempt: str, obfuscation: bool = False) -> str:
+def evaluate(secret: str, attempt: str, obfuscation: bool = False) -> Tuple[str, bool]:
     if len(attempt) < CODE_LENGTH: 
         raise ValueError("Attempt needs to be 5 characters long")
     if len(attempt) == CODE_LENGTH and len(set(attempt)) < CODE_LENGTH:
         raise ValueError("Attempt needs to have 5 different characters")
     
+    # Verificamos inmediatamente si el intento es igual al secreto
+    if secret == attempt:
+        return ("=" * CODE_LENGTH, True)
+    
     result = ""
+    
     for i, a in enumerate(attempt):
-        if secret == attempt:
-            return "=" * CODE_LENGTH
         
         if obfuscation:
             if a == 'y':
@@ -171,8 +183,8 @@ def evaluate(secret: str, attempt: str, obfuscation: bool = False) -> str:
                     result += "<"
                 else:
                     result += ">"
-                    
-    return result
+    
+    return (result, False)
 
 def clue(secret: str, attempt: str, position: int) -> str:
     print("\033[32m\n\nClue requested\033[0m")

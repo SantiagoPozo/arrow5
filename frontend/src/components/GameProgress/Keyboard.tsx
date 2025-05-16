@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { KeyInput as BaseKeyInput } from "../types";
 import renderIcon from "../auxiliar";
+import redBrush from "/src/assets/red-brush.png";
+import greenBrush from "/src/assets/green-brush.png";
+import eraser from "/src/assets/eraser.png";
 
 // Extend KeyInput type to include color actions
 type KeyInput =
@@ -54,24 +57,17 @@ export default function Keyboard({
     {
       type: "action",
       action: "spySaysNo",
-      value: (
-        <img src="/src/assets/red-brush-128.png" alt="Mark number as absent" />
-      ),
+      value: <img src={redBrush} alt="Mark number as absent" />,
     },
     {
       type: "action",
       action: "spySaysYes",
-      value: (
-        <img
-          src="/src/assets/green-brush-128.png"
-          alt="Mark number as present"
-        />
-      ),
+      value: <img src={greenBrush} alt="Mark number as present" />,
     },
     {
       type: "action",
       action: "clear-color",
-      value: <img src="/src/assets/eraser-128.png" alt="Clear color" />,
+      value: <img src={eraser} alt="Clear color" />,
     },
   ];
 

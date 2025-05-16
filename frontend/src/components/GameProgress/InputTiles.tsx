@@ -76,11 +76,10 @@ const InputTiles: React.FC<InputTilesProps> = ({
       const newTiles = [...prev];
       if (newTiles[activeIndex] !== "") {
         newTiles[activeIndex] = "";
-      } else if (activeIndex > 0) {
-        newTiles[activeIndex - 1] = "";
-        setActiveIndex(activeIndex - 1);
-        inputRefs.current[activeIndex - 1]?.focus();
       }
+
+      setActiveIndex((activeIndex + 4) % 5);
+      inputRefs.current[(activeIndex + 4) % 5]?.focus();
       return newTiles;
     });
   };

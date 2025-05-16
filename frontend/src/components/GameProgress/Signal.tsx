@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from "react";
 
-interface ResultCharProps {
+interface SignalProps {
   children: React.ReactNode;
 }
 
-const ResultChar: React.FC<ResultCharProps> = ({ children }) => {
+const Signal: React.FC<SignalProps> = ({ children }) => {
   const [visibleChars, setVisibleChars] = useState<number>(0);
-  const result = String(children);
+  const signal = String(children);
 
   useEffect(() => {
-    if (result === "") return;
+    if (signal === "") return;
 
     setVisibleChars(0);
     const intervals: NodeJS.Timeout[] = [];
 
     // Show each character with 200ms delay
-    for (let i = 0; i < result.length; i++) {
+    for (let i = 0; i < signal.length; i++) {
       const timeout = setTimeout(() => {
         setVisibleChars((prev) => prev + 1);
       }, 200 * i);
@@ -25,18 +25,18 @@ const ResultChar: React.FC<ResultCharProps> = ({ children }) => {
     return () => {
       intervals.forEach((interval) => clearTimeout(interval));
     };
-  }, [result]);
+  }, [signal]);
 
-  if (result === "") {
-    return <div className="result">∅</div>;
+  if (signal === "") {
+    return <div className="signal">∅</div>;
   }
 
   return (
-    <div className="result">
-      {result.split("").map((char, index) => (
+    <div className="signal">
+      {signal.split("").map((char, index) => (
         <div
           key={index}
-          className={`result-char ${char === "=" ? "steady" : "move"}`}
+          className={`signal-char ${char === "=" ? "steady" : "move"}`}
           style={{ visibility: index < visibleChars ? "visible" : "hidden" }}
         >
           {char === "=" ? "◎" : char === ">" ? "🠊" : char === "<" ? "🠈" : ""}
@@ -46,4 +46,4 @@ const ResultChar: React.FC<ResultCharProps> = ({ children }) => {
   );
 };
 
-export default ResultChar;
+export default Signal;

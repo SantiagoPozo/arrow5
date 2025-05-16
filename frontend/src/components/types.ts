@@ -1,6 +1,8 @@
 export interface AttemptData {
   attempts: string[];
   responses: string[];
+  clues?: Record<string, { result: string }>;
+  solved?: boolean;
 }
 
 export interface KeyInput {

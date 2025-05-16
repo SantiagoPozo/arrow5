@@ -1,0 +1,54 @@
+@use '../../../styles/abstracts/variables' as *
+
+#rules
+  position: absolute
+  top: 0px
+  z-index: 100
+  left: calc( 50% - clamp(330px, 80%, 60ch) / 2 )
+  width: clamp(330px, 80%, 50ch)
+  padding: 1rem
+  font-size: 1.2rem
+  border: 2px solid #ccc
+  border-radius: 5px
+  background-color: #fff
+
+  .green, .green > em
+    color: $color-green
+  .red, .red > em
+    color: $color-red
+
+  li
+    text-align: left 
+    margin-left: 1.5rem
+    padding-bottom: 0.5rem
+  #game-rules li
+    list-style-type: "◎ "
+  #obfuscated
+    list-style: none
+  p 
+    text-align: left
+
+  img
+    &.inline
+      display: inline
+      height: 1.2em
+      width: auto
+      vertical-align: middle
+    &:not(.inline)
+      max-width: calc(100% - 20px)
+      margin-left: -1rem
+
+  #close-instructions
+    position: absolute
+    top: -2px
+    right: 2px
+    fontSize: 1.5rem
+    border: none
+    background: none
+    cursor: pointer
+    will-change: transform
+    transition: transform 0.2s ease-in-out
+
+  #close-instructions:hover   
+    color: $color-green
+    transform: rotate(90deg)

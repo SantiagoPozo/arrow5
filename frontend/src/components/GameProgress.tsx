@@ -3,6 +3,7 @@ import axios from "axios";
 import Gameboard from "./GameProgress/Gameboard";
 import InputTiles from "./GameProgress/InputTiles";
 import Keyboard from "./GameProgress/Keyboard";
+import Rules from "./GameProgress/Rules/Rules"; // Importa el componente Rules
 import { KeyInput, AttemptData, ClueData } from "./types";
 import sheSpy from "./../assets/she.png";
 import heSpy from "./../assets/he.png";
@@ -41,9 +42,11 @@ const GameProgress: React.FC<GameProgressProps> = ({
   const [attemptData, setAttemptData] = useState<AttemptData>({
     attempts: [],
     responses: [],
+    solved: false,
   });
   const [playerName, setPlayerName] = useState<string>("");
   const [gender, setGender] = useState<string>("none");
+  const [showInstructions, setShowInstructions] = useState(false); // Nuevo estado
 
   const initialInfo: ClueData = {
     "0": { present: undefined, possiblePositions: new Set([0, 1, 2, 3, 4]) },
@@ -57,7 +60,7 @@ const GameProgress: React.FC<GameProgressProps> = ({
     "8": { present: undefined, possiblePositions: new Set([0, 1, 2, 3, 4]) },
     "9": { present: undefined, possiblePositions: new Set([0, 1, 2, 3, 4]) },
     x: { present: undefined, possiblePositions: new Set([0, 1, 2, 3, 4]) },
-    y: { present: false, possiblePositions: new Set<number>() },
+    y: { present: undefined, possiblePositions: new Set([0, 1, 2, 3, 4]) },
   };
   const [clueData, setClueData] = useState<ClueData>(initialInfo);
   const [numOfAttempts, setNumOfAttempts] = useState<number>(-1);
@@ -75,15 +78,13 @@ const GameProgress: React.FC<GameProgressProps> = ({
     const lastResponse =
       attemptData.responses[attemptData.responses.length - 1];
     attemptData.responses && console.log("last response:", lastResponse);
-    if (lastResponse === "=====") {
+
+    // Verificar si el juego está resuelto
+    if (attemptData.solved === true) {
       setTimeout(() => {
         onGameFinished();
       }, 1000);
-    }
-    if (
-      lastResponse !== "=====" &&
-      attemptData.responses.length === MAX_ATTEMPTS
-    ) {
+    } else if (attemptData.responses.length === MAX_ATTEMPTS) {
       setNumOfAttempts((prevNum) => prevNum + 1);
       setTimeout(() => {
         onGameFinished();
@@ -94,8 +95,13 @@ const GameProgress: React.FC<GameProgressProps> = ({
   const fetchGameState = async () => {
     try {
       const response = await axios.get(`http://localhost:8000/games/${gameId}`);
-      // Se actualiza solo el attemptData porque la API ya no envía player ni gender
-      setAttemptData(response.data);
+      // Se actualiza el attemptData incluyendo el campo solved
+      setAttemptData({
+        attempts: response.data.attempts || [],
+        responses: response.data.responses || [],
+        clues: response.data.clues,
+        solved: response.data.solved || false, // Incluir el campo solved
+      });
       // Se recupera el active player de localStorage
       const activePlayer = localStorage.getItem("activePlayer") || "";
       setPlayerName(activePlayer);
@@ -125,25 +131,18 @@ const GameProgress: React.FC<GameProgressProps> = ({
         `http://localhost:8000/games/${gameId}/attempt`,
         { attempt }
       );
-      const last_response = response.data.result;
-      setAttemptData((prev) => ({
-        attempts: [...prev.attempts, attempt],
-        responses: [...prev.responses, last_response],
-      }));
-      setNumOfAttempts((prevNum) => prevNum + 1);
 
-      // if (last_response === "=====") {
-      //   setTimeout(() => {
-      //     onGameFinished();
-      //   }, 1000);
-      // } else {
-      //   // si el número de intentos es 8, se considera que el juego ha terminado
-      //   if (attemptData.responses.length === MAX_ATTEMPTS) {
-      //     setTimeout(() => {
-      //       onGameFinished();
-      //     }, 1000);
-      //   }
-      // }
+      // Extraemos tanto result como solved de la respuesta
+      const { result, solved } = response.data;
+
+      setAttemptData((prev) => ({
+        ...prev,
+        attempts: [...prev.attempts, attempt],
+        responses: [...prev.responses, result],
+        solved: solved || prev.solved, // Actualizamos el estado solved
+      }));
+
+      setNumOfAttempts((prevNum) => prevNum + 1);
 
       return true;
     } catch (err) {
@@ -215,7 +214,17 @@ const GameProgress: React.FC<GameProgressProps> = ({
             <img src={theySpy} alt="They Spy" className="avatar-image" />
           )}
         </div>
+        <div id="show-intructions">
+          <button
+            id="show-instructions"
+            onClick={() => setShowInstructions((prev) => !prev)}
+          >
+            ?
+          </button>
+        </div>
       </header>
+      {showInstructions && <Rules setShowInstructions={setShowInstructions} />}
+      {/* Muestra las instrucciones debajo del header */}
       <div>
         <p id="error">{error}</p>
         <Gameboard

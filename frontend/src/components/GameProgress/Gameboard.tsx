@@ -1,6 +1,6 @@
 import React from "react";
 import Tile from "./Tile";
-import ResultChar from "./ResultChar";
+import Signal from "./Signal";
 import { AttemptData, ClueData } from "../types";
 import renderIcon from "../auxiliar";
 
@@ -43,8 +43,8 @@ const Gameboard: React.FC<GameboardProps> = ({
               </Tile>
             ))}
           </div>
-          <div key={`result-${index}`}>
-            <ResultChar>{attemptData.responses[index]}</ResultChar>
+          <div key={`signal-${index}`}>
+            <Signal>{attemptData.responses[index]}</Signal>
           </div>
         </div>
       ))}
