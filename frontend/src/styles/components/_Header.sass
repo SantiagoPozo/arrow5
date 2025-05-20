@@ -1,11 +1,23 @@
 @use '../abstracts/variables' as *
 
-header 
-  display: flex
-  justify-content: space-evenly
-  align-items: center
-  gap: 1em
+header
+  display: grid
+  grid-template-rows: 1fr 1fr 
+  gap: 0.1em
   width: 100%
+
+  #game-head
+    grid-row: 1
+    display: grid
+    grid-template-columns: 6fr 1fr 1fr
+    align-items: center
+
+  #game-info
+    font-size: 0.6em
+    grid-row: 2
+    display: grid
+    grid-template-columns: 1fr 1fr
+    align-items: center
 
 #avatar
   display: inline-block

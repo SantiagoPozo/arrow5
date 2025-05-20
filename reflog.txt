@@ -1,0 +1,13 @@
+ffaac56 HEAD@{0}: commit: First complete and functional game version
+0cd08d0 HEAD@{1}: checkout: moving from d893260a5efac3fef51386f40e1e919f7018e5bf to main
+d893260 HEAD@{2}: commit: There are rules now. Better icons. Not used files deleted. Some errors fixed. Symbols now are coller. Obfuscation mode developed.
+6409937 HEAD@{3}: commit: No rulebook. Ready for play!
+0cd08d0 HEAD@{4}: checkout: moving from main to 0cd08d0
+0cd08d0 HEAD@{5}: commit: More changes.
+2d168b6 HEAD@{6}: commit: First publicable version. Three avatars, 4 difficulty levels, bautiful effects...
+eb3cc33 HEAD@{7}: commit: Implemented dynamic color effects for tiles and
+8343814 HEAD@{8}: commit: Funcional version of the game with the following
+565c8bd HEAD@{9}: commit: Changing to a one player game in next commits
+ca0d503 HEAD@{10}: commit: Create short ID suggestion
+0e209cc HEAD@{11}: commit: Including frontend, backend and rules
+293249c HEAD@{12}: clone: from https://github.com/SantiagoPozo/pentos

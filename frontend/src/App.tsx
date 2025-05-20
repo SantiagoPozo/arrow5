@@ -8,7 +8,15 @@ type GameStatus = "NO_GAME" | "IN_PROGRESS" | "FINISHED";
 
 function App() {
   const [gameStatus, setGameStatus] = useState<GameStatus>("NO_GAME");
-  let gameId = useRef<string>("");
+  const gameId = useRef<string>("");
+
+  // Estados trasladados desde CreateGame
+  const [playerName, setPlayerName] = useState<string>("");
+  const [selectedAvatar, setSelectedAvatar] = useState<"she" | "he" | "they">(
+    "she"
+  );
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string>("n");
+  const [obfuscation, setObfuscation] = useState<boolean>(false);
 
   return (
     <>
@@ -18,6 +26,13 @@ function App() {
             gameId.current = newId;
             setGameStatus("IN_PROGRESS");
           }}
+          setPlayerName={setPlayerName}
+          selectedAvatar={selectedAvatar}
+          setSelectedAvatar={setSelectedAvatar}
+          selectedDifficulty={selectedDifficulty}
+          setSelectedDifficulty={setSelectedDifficulty}
+          obfuscation={obfuscation}
+          setObfuscation={setObfuscation}
         />
       )}
       {(gameStatus === "IN_PROGRESS" || gameStatus === "FINISHED") && (
@@ -26,6 +41,10 @@ function App() {
           onGameFinished={() => setGameStatus("FINISHED")}
           startNewGame={() => setGameStatus("NO_GAME")}
           gameStatus={gameStatus}
+          playerName={playerName}
+          selectedAvatar={selectedAvatar}
+          selectedDifficulty={selectedDifficulty}
+          obfuscation={obfuscation}
         />
       )}
     </>

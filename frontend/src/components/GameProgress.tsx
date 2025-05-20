@@ -3,13 +3,12 @@ import axios from "axios";
 import Gameboard from "./GameProgress/Gameboard";
 import InputTiles from "./GameProgress/InputTiles";
 import Keyboard from "./GameProgress/Keyboard";
-import Rules from "./GameProgress/Rules/Rules"; // Importa el componente Rules
+import Rules from "./GameProgress/Rules/Rules";
 import { KeyInput, AttemptData, ClueData } from "./types";
 import sheSpy from "./../assets/she.png";
 import heSpy from "./../assets/he.png";
 import theySpy from "./../assets/they.png";
 
-// Mensajes de victoria/derrota basados en el número de intentos
 const messages = [
   "Your psychic vision shattered the enemy's codes—our victory in this war is complete.",
   "With your psychic insight, you've unraveled their secret transmissions; the balance of war tilts toward us.",
@@ -27,6 +26,10 @@ type GameProgressProps = {
   gameId: string;
   onGameFinished: () => void;
   startNewGame: (id: string) => void;
+  playerName: string;
+  selectedAvatar: "she" | "he" | "they";
+  selectedDifficulty: string;
+  obfuscation: boolean;
 };
 
 const MAX_ATTEMPTS = 8;
@@ -36,6 +39,10 @@ const GameProgress: React.FC<GameProgressProps> = ({
   onGameFinished,
   startNewGame,
   gameStatus,
+  playerName,
+  selectedAvatar,
+  selectedDifficulty,
+  obfuscation,
 }) => {
   const [error, setError] = useState<string>("");
   const [tileInput, setTileInput] = useState<KeyInput | null>(null);
@@ -44,9 +51,7 @@ const GameProgress: React.FC<GameProgressProps> = ({
     responses: [],
     solved: false,
   });
-  const [playerName, setPlayerName] = useState<string>("");
-  const [gender, setGender] = useState<string>("none");
-  const [showInstructions, setShowInstructions] = useState(false); // Nuevo estado
+  const [showInstructions, setShowInstructions] = useState(false);
 
   const initialInfo: ClueData = {
     "0": { present: undefined, possiblePositions: new Set([0, 1, 2, 3, 4]) },
@@ -64,8 +69,6 @@ const GameProgress: React.FC<GameProgressProps> = ({
   };
   const [clueData, setClueData] = useState<ClueData>(initialInfo);
   const [numOfAttempts, setNumOfAttempts] = useState<number>(-1);
-
-  // Estado para los colores asignados a los caracteres del teclado
   const [keyColors, setKeyColors] = useState<
     Record<string, "spy-says-no" | "spy-says-yes">
   >({});
@@ -102,16 +105,7 @@ const GameProgress: React.FC<GameProgressProps> = ({
         clues: response.data.clues,
         solved: response.data.solved || false, // Incluir el campo solved
       });
-      // Se recupera el active player de localStorage
-      const activePlayer = localStorage.getItem("activePlayer") || "";
-      setPlayerName(activePlayer);
-      // Si se deseara recuperar el avatar asociado, se podría obtener desde localStorage "players"
-      const playersStr = localStorage.getItem("players");
-      if (playersStr) {
-        const players = JSON.parse(playersStr);
-        const found = players.find((p: any) => p.name === activePlayer);
-        setGender(found ? found.avatar : "none");
-      }
+
       if (process.env.NODE_ENV !== "production") {
         console.log("response.data", response.data);
       }
@@ -202,29 +196,38 @@ const GameProgress: React.FC<GameProgressProps> = ({
   return (
     <>
       <header>
-        <div id="player-name">{playerName}</div>
-        <div id="avatar">
-          {gender === "she" && (
-            <img src={sheSpy} alt="She Spy" className="avatar-image" />
-          )}
-          {gender === "he" && (
-            <img src={heSpy} alt="He Spy" className="avatar-image" />
-          )}
-          {gender === "they" && (
-            <img src={theySpy} alt="They Spy" className="avatar-image" />
-          )}
+        <div id="game-head">
+          <div id="player-name">{playerName}</div>
+          <div id="avatar">
+            {selectedAvatar === "she" && (
+              <img src={sheSpy} alt="She Spy" className="avatar-image" />
+            )}
+            {selectedAvatar === "he" && (
+              <img src={heSpy} alt="He Spy" className="avatar-image" />
+            )}
+            {selectedAvatar === "they" && (
+              <img src={theySpy} alt="They Spy" className="avatar-image" />
+            )}
+          </div>
+          <div id="show-intructions">
+            <button
+              id="show-instructions"
+              onClick={() => setShowInstructions((prev) => !prev)}
+            >
+              ?
+            </button>
+          </div>
         </div>
-        <div id="show-intructions">
-          <button
-            id="show-instructions"
-            onClick={() => setShowInstructions((prev) => !prev)}
-          >
-            ?
-          </button>
+        <div id="game-info">
+          <div id="show-obfuscation">
+            {obfuscation ? "Obfuscated" : "Not obfuscated"}
+          </div>
+          <div id="show-difficulty">{selectedDifficulty} clue per attempt</div>
         </div>
       </header>
+
       {showInstructions && <Rules setShowInstructions={setShowInstructions} />}
-      {/* Muestra las instrucciones debajo del header */}
+
       <div>
         <p id="error">{error}</p>
         <Gameboard
