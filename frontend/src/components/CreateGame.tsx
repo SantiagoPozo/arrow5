@@ -1,20 +1,18 @@
-import React, { FormEvent, useEffect } from "react";
+import React, { FormEvent } from "react";
 import axios from "axios";
 import Avatar from "./GameCreate/Avatars";
 import Difficulty from "./GameCreate/Difficulty";
 import Mode from "./GameCreate/Mode";
 
-// Extiende el type de props para incluir los estados y sus setters
+// Actualizamos el type de props
 type CreateGameProps = {
   onGameCreated: (id: string) => void;
   playerName: string;
   setPlayerName: React.Dispatch<React.SetStateAction<string>>;
-  selectedAvatar: "she" | "he" | "they";
-  setSelectedAvatar: React.Dispatch<
-    React.SetStateAction<"she" | "he" | "they">
-  >;
-  selectedDifficulty: string;
-  setSelectedDifficulty: React.Dispatch<React.SetStateAction<string>>;
+  playerAvatar: "she" | "he" | "they";
+  setPlayerAvatar: React.Dispatch<React.SetStateAction<"she" | "he" | "they">>;
+  gameDifficulty: string;
+  setGameDifficulty: React.Dispatch<React.SetStateAction<string>>;
   obfuscation: boolean;
   setObfuscation: React.Dispatch<React.SetStateAction<boolean>>;
 };
@@ -23,39 +21,37 @@ const CreateGame: React.FC<CreateGameProps> = ({
   onGameCreated,
   playerName,
   setPlayerName,
-  selectedAvatar,
-  setSelectedAvatar,
-  selectedDifficulty,
-  setSelectedDifficulty,
+  playerAvatar,
+  setPlayerAvatar,
+  gameDifficulty,
+  setGameDifficulty,
   obfuscation,
   setObfuscation,
 }) => {
-  useEffect(() => {
-    const active = getActivePlayerName();
-    if (active) {
-      setPlayerName(active);
-      const p = getPlayerByName(active);
-      if (p) {
-        setSelectedAvatar(p.avatar);
-        setSelectedDifficulty(p.difficulty);
-        if (p.obfuscation !== undefined) {
-          setObfuscation(p.obfuscation);
-        }
-      }
-    }
-  }, [setPlayerName, setSelectedAvatar, setSelectedDifficulty, setObfuscation]);
-
   const handleCreateGame = async (e?: FormEvent) => {
     e?.preventDefault();
     if (!playerName.trim()) return;
     try {
+      // Guarda en localStorage la información actual (solo en CreateGame)
+      localStorage.setItem("activePlayer", playerName);
+
       const res = await axios.post("http://127.0.0.1:8000/games", {
         playerName,
-        difficulty: selectedDifficulty,
-        obfuscation: obfuscation,
+        difficulty: gameDifficulty,
+        obfuscation,
       });
+
+      // Escritura en localStorage para mantener la partida activa
+      localStorage.setItem("isActiveGame", "true");
+      localStorage.setItem("activeGameId", res.data);
+      const activeGameSetup = {
+        playerAvatar: playerAvatar,
+        gameDifficulty: gameDifficulty,
+        obfuscation: obfuscation,
+      };
+      localStorage.setItem("activeGameSetup", JSON.stringify(activeGameSetup));
+
       onGameCreated(res.data);
-      managePlayer(playerName, selectedDifficulty, selectedAvatar, obfuscation);
     } catch (err) {
       console.error(err);
     }
@@ -67,12 +63,12 @@ const CreateGame: React.FC<CreateGameProps> = ({
       <h2>A Spies Game of Deduction and Deception</h2>
       <form onSubmit={handleCreateGame}>
         <Avatar
-          selectedAvatar={selectedAvatar}
-          onSelectAvatar={setSelectedAvatar}
+          selectedAvatar={playerAvatar}
+          onSelectAvatar={setPlayerAvatar}
         />
         <Difficulty
-          selectedDifficulty={selectedDifficulty}
-          setSelectedDifficulty={setSelectedDifficulty}
+          selectedDifficulty={gameDifficulty}
+          setSelectedDifficulty={setGameDifficulty}
         />
         <Mode obfuscation={obfuscation} setObfuscation={setObfuscation} />
         <input

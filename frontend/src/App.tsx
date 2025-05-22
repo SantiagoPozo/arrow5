@@ -1,7 +1,8 @@
 // frontend/src/App.tsx
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import CreateGame from "./components/CreateGame";
 import GameProgress from "./components/GameProgress";
+import axios from "axios";
 import "./styles/main.sass";
 
 type GameStatus = "NO_GAME" | "IN_PROGRESS" | "FINISHED";
@@ -12,11 +13,49 @@ function App() {
 
   // Estados trasladados desde CreateGame
   const [playerName, setPlayerName] = useState<string>("");
-  const [selectedAvatar, setSelectedAvatar] = useState<"she" | "he" | "they">(
+  const [playerAvatar, setPlayerAvatar] = useState<"she" | "he" | "they">(
     "she"
   );
-  const [selectedDifficulty, setSelectedDifficulty] = useState<string>("n");
+  const [gameDifficulty, setGameDifficulty] = useState<string>("n");
   const [obfuscation, setObfuscation] = useState<boolean>(false);
+
+  // useEffect para revisar el estado persistido en localStorage
+  useEffect(() => {
+    const activeGame = localStorage.getItem("isActiveGame");
+    const activeGameId = localStorage.getItem("activeGameId");
+    if (activeGame === "true" && activeGameId) {
+      gameId.current = activeGameId;
+
+      // Recuperamos también la configuración de la partida activa:
+      const storedSetup = localStorage.getItem("activeGameSetup");
+      if (storedSetup) {
+        try {
+          const setup = JSON.parse(storedSetup);
+          // setup debería tener la estructura:
+          // { playerAvatar: string, gameDifficulty: string, obfuscation: boolean }
+          setPlayerAvatar(setup.playerAvatar);
+          setGameDifficulty(setup.gameDifficulty);
+          setObfuscation(setup.obfuscation);
+        } catch (err) {
+          console.error("Error al parsear activeGameSetup:", err);
+        }
+      }
+
+      axios
+        .get(`http://127.0.0.1:8000/games/${activeGameId}`)
+        .then((res) => {
+          setGameStatus("IN_PROGRESS");
+          // Otras actualizaciones si son necesarias...
+        })
+        .catch((err) => {
+          console.error("Error recuperando la partida activa", err);
+          localStorage.removeItem("isActiveGame");
+          localStorage.removeItem("activeGameId");
+          localStorage.removeItem("activeGameSetup");
+          setGameStatus("NO_GAME");
+        });
+    }
+  }, []);
 
   return (
     <>
@@ -26,11 +65,12 @@ function App() {
             gameId.current = newId;
             setGameStatus("IN_PROGRESS");
           }}
+          playerName={playerName}
           setPlayerName={setPlayerName}
-          selectedAvatar={selectedAvatar}
-          setSelectedAvatar={setSelectedAvatar}
-          selectedDifficulty={selectedDifficulty}
-          setSelectedDifficulty={setSelectedDifficulty}
+          playerAvatar={playerAvatar}
+          setPlayerAvatar={setPlayerAvatar}
+          gameDifficulty={gameDifficulty}
+          setGameDifficulty={setGameDifficulty}
           obfuscation={obfuscation}
           setObfuscation={setObfuscation}
         />
@@ -38,12 +78,17 @@ function App() {
       {(gameStatus === "IN_PROGRESS" || gameStatus === "FINISHED") && (
         <GameProgress
           gameId={gameId.current}
-          onGameFinished={() => setGameStatus("FINISHED")}
+          onGameFinished={() => {
+            setGameStatus("FINISHED");
+            // Al terminar la partida, se limpia el estado persistido
+            localStorage.removeItem("isActiveGame");
+            localStorage.removeItem("activeGameId");
+          }}
           startNewGame={() => setGameStatus("NO_GAME")}
           gameStatus={gameStatus}
           playerName={playerName}
-          selectedAvatar={selectedAvatar}
-          selectedDifficulty={selectedDifficulty}
+          playerAvatar={playerAvatar}
+          gameDifficulty={gameDifficulty}
           obfuscation={obfuscation}
         />
       )}

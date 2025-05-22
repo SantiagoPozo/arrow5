@@ -27,8 +27,8 @@ type GameProgressProps = {
   onGameFinished: () => void;
   startNewGame: (id: string) => void;
   playerName: string;
-  selectedAvatar: "she" | "he" | "they";
-  selectedDifficulty: string;
+  playerAvatar: "she" | "he" | "they";
+  gameDifficulty: string;
   obfuscation: boolean;
 };
 
@@ -40,8 +40,8 @@ const GameProgress: React.FC<GameProgressProps> = ({
   startNewGame,
   gameStatus,
   playerName,
-  selectedAvatar,
-  selectedDifficulty,
+  playerAvatar,
+  gameDifficulty,
   obfuscation,
 }) => {
   const [error, setError] = useState<string>("");
@@ -73,39 +73,31 @@ const GameProgress: React.FC<GameProgressProps> = ({
     Record<string, "spy-says-no" | "spy-says-yes">
   >({});
 
-  // En GameProgress.tsx, añade un nuevo useEffect para registrar attemptData:
-  if (process.env.NODE_ENV !== "production") {
-    console.log("attemptData cambiado:", attemptData);
-  }
   useEffect(() => {
-    const lastResponse =
-      attemptData.responses[attemptData.responses.length - 1];
-    attemptData.responses && console.log("last response:", lastResponse);
-
-    // Verificar si el juego está resuelto
+    if (process.env.NODE_ENV !== "production") {
+      console.log("attemptData changed:", attemptData);
+    }
     if (attemptData.solved === true) {
       setTimeout(() => {
         onGameFinished();
       }, 1000);
     } else if (attemptData.responses.length === MAX_ATTEMPTS) {
-      setNumOfAttempts((prevNum) => prevNum + 1);
+      setNumOfAttempts((prev) => prev + 1);
       setTimeout(() => {
         onGameFinished();
       }, 1000);
     }
-  }, [attemptData]);
+  }, [attemptData, onGameFinished]);
 
   const fetchGameState = async () => {
     try {
       const response = await axios.get(`http://localhost:8000/games/${gameId}`);
-      // Se actualiza el attemptData incluyendo el campo solved
       setAttemptData({
         attempts: response.data.attempts || [],
         responses: response.data.responses || [],
         clues: response.data.clues,
-        solved: response.data.solved || false, // Incluir el campo solved
+        solved: response.data.solved || false,
       });
-
       if (process.env.NODE_ENV !== "production") {
         console.log("response.data", response.data);
       }
@@ -125,19 +117,14 @@ const GameProgress: React.FC<GameProgressProps> = ({
         `http://localhost:8000/games/${gameId}/attempt`,
         { attempt }
       );
-
-      // Extraemos tanto result como solved de la respuesta
       const { result, solved } = response.data;
-
       setAttemptData((prev) => ({
         ...prev,
         attempts: [...prev.attempts, attempt],
         responses: [...prev.responses, result],
-        solved: solved || prev.solved, // Actualizamos el estado solved
+        solved: solved || prev.solved,
       }));
-
-      setNumOfAttempts((prevNum) => prevNum + 1);
-
+      setNumOfAttempts((prev) => prev + 1);
       return true;
     } catch (err) {
       console.error("Error submitting attempt", err);
@@ -199,13 +186,13 @@ const GameProgress: React.FC<GameProgressProps> = ({
         <div id="game-head">
           <div id="player-name">{playerName}</div>
           <div id="avatar">
-            {selectedAvatar === "she" && (
+            {playerAvatar === "she" && (
               <img src={sheSpy} alt="She Spy" className="avatar-image" />
             )}
-            {selectedAvatar === "he" && (
+            {playerAvatar === "he" && (
               <img src={heSpy} alt="He Spy" className="avatar-image" />
             )}
-            {selectedAvatar === "they" && (
+            {playerAvatar === "they" && (
               <img src={theySpy} alt="They Spy" className="avatar-image" />
             )}
           </div>
@@ -222,7 +209,15 @@ const GameProgress: React.FC<GameProgressProps> = ({
           <div id="show-obfuscation">
             {obfuscation ? "Obfuscated" : "Not obfuscated"}
           </div>
-          <div id="show-difficulty">{selectedDifficulty} clue per attempt</div>
+          <div id="show-difficulty">
+            {gameDifficulty === "0"
+              ? "0 clues"
+              : gameDifficulty === "1"
+              ? "1 clue"
+              : gameDifficulty === "5n"
+              ? "∞ clues"
+              : "1 clue per attempt"}
+          </div>
         </div>
       </header>
 
@@ -245,10 +240,7 @@ const GameProgress: React.FC<GameProgressProps> = ({
             keyboardInput={tileInput}
             setKeyboardInput={setTileInput}
             setError={setError}
-            onComplete={async (attempt) => {
-              const success = await handleAttemptSubmit(attempt);
-              return success;
-            }}
+            onComplete={handleAttemptSubmit}
           />
           <Keyboard
             clueData={clueData}
