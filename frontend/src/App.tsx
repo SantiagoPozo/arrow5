@@ -45,7 +45,7 @@ function App() {
         .get(`http://127.0.0.1:8000/games/${activeGameId}`)
         .then((res) => {
           setGameStatus("IN_PROGRESS");
-          // Otras actualizaciones si son necesarias...
+          console.log("Partida recuperada:", res.data);
         })
         .catch((err) => {
           console.error("Error recuperando la partida activa", err);

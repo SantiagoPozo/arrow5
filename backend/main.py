@@ -64,13 +64,14 @@ async def get_game(game_id: str):
     if game_id not in games:
         raise HTTPException(status_code=404, detail="Game not found")
     game = games[game_id]
-    # Return game data without exposing the secret
+    # Convertir las claves de game.clues a strings, por ejemplo "attemptIndex_tileIndex"
+    clues_serializable = { f"{key[0]}_{key[1]}": value for key, value in game.clues.items() }
     return {
         "id": game.id,
         "attempts": game.attempts,
         "responses": game.responses,
-        "clues": game.clues,
-        "solved": game.solved  # Incluir el estado de resolución en la respuesta
+        "clues": clues_serializable,
+        "solved": game.solved
     }
 
 class AttemptRequest(BaseModel):
