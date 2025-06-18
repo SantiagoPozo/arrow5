@@ -1,14 +1,6 @@
 @use '../abstracts/variables' as *
 @use '../abstracts/mixins' as mixins
 
-#show-instructions
-  border: none
-  cursor: pointer
-  will-change: transform
-  transition: transform 0.3s ease-in-out
-  padding: 10px
-  &:hover
-    transform: rotate(360deg)
   
 #error
   min-height: 50px
@@ -18,7 +10,7 @@
   &.opaque
     color: $color-red
   
-.GameBoard > div
+.attempt-signal
   display: flex
   flex-direction: row
   flex-wrap: nowrap
@@ -45,7 +37,13 @@
       border-radius: 0 0 6px 0
 
 .tile
-  +mixins.common-tile-keybutton
+  box-sizing: border-box
+  margin: 0
+  font-size: 1.5em
+  height: 50px
+  text-align: center
+  position: relative
+  transition: all 0.2s
   border: 1px solid #aaa
 
 .result-tile
@@ -65,25 +63,46 @@
     height: 17px
     margin: 0
     padding: 0
-    background-color: #ccc 
+    background-color: #ccc
+
   &.spy-says-no
     box-shadow: inset -2px 0 1px $color-red, inset 0 2px 1px $color-red, inset 2px 0 1px $color-red, inset 0 -2px 1px $color-red
     color: $color-red
+    :root[data-theme='dark'] &
+      color: $color-red-light
+      box-shadow: inset -2px 0 1px $color-red-light, inset 0 2px 1px $color-red-light, inset 2px 0 1px $color-red-light, inset 0 -2px 1px $color-red-light
   &.spy-says-yes
     box-shadow: inset -2px 0 1px $color-green, inset 0 2px 1px $color-green, inset 2px 0 1px $color-green, inset 0 -2px 1px $color-green
     color: $color-green
+    :root[data-theme='dark'] &
+      color: $color-green-light
+      box-shadow: inset -2px 0 1px $color-green-light, inset 0 2px 1px $color-green-light, inset 2px 0 1px $color-green-light, inset 0 -2px 1px $color-green-light
   &.present
     box-shadow: inset -2px 0 2px $color-green, inset 0 2px 2px $color-green, inset 2px 0 2px $color-green, inset 0 -2px 2px $color-green
     border-bottom: none
-    &.clue-required::after
+    color: $color-green-light $color-green
+    :root[data-theme='dark'] &
+      color: $color-green-light
+      box-shadow: inset -2px 0 2px $color-green-light, inset 0 2px 2px $color-green-light, inset 2px 0 2px $color-green-light, inset 0 -2px 2px $color-green-light
+    &.clue-requested::after
       background-color: $color-green
+      :root[data-theme='dark'] &
+        background-color: $color-green-light
   &.absent
-    box-shadow: inset -2px 0 2px $color-red, inset 0 2px 2px $color-red, inset 2px 0 2px $color-red, inset 0 -2px 2px $color-red
     border-bottom: none
-    &.clue-required::after
+    color: $color-red
+    box-shadow: inset -2px 0 2px $color-red, inset 0 2px 2px $color-red, inset 2px 0 2px $color-red, inset 0 -2px 2px $color-red
+    :root[data-theme='dark'] &
+      color: $color-red-light
+      box-shadow: inset -2px 0 2px $color-red-light, inset 0 2px 2px $color-red-light, inset 2px 0 2px $color-red-light, inset 0 -2px 2px $color-red-light
+    
+    &::after
       content: "×"
       background-color: $color-red
-  &.clue-required::after
+      color: white
+      :root[data-theme='dark'] &
+        background-color: $color-red-light
+  &::after
     color: white
     font-size: 0.6em
     font-family: serif
@@ -93,6 +112,8 @@
     content: $right
   &.steady::after
     content: $steady
+  &.absent::after
+    content: $absent
 
 .signal
   display: flex
@@ -101,11 +122,11 @@
   margin-top: 5px
   margin-left: 10px
   height: 50px
-    
-  
   & .signal-char
     font-family: serif  
     color: $color-green
+    :root[data-theme='dark'] &
+      color: $color-green-light
     margin-left: 0.2em
     margin-top: 0.2em
     &.move
@@ -129,10 +150,10 @@
   img 
     will-change: width
     transition: width 0.2s ease
-    width: 32px
+    width: 28px
     border-radius: 8px
     @media (min-width: 401px)
-      width: 36px
+      width: 32px
 
   &.active
     box-shadow: 0 0 5px $color-blue

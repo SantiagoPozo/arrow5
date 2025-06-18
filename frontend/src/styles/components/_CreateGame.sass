@@ -1,4 +1,5 @@
 @use '../abstracts/variables' as *
+@use "sass:color"
 
 #create-game
   form
@@ -22,14 +23,50 @@
       font-size: 1em
       padding: 0.5em
       border-radius: 8px
-      border: 1px solid #aaa
+      // border: 1px solid #aaa
       text-align: center
-      &:focus
+    &:focus
         cursor: pointer
+  
+  form button[type="submit"]
+    transition: background 0.3s, color 0.3s
+    &.they
+      color: $color-blue
+      border: 2px solid $color-blue
+      &:hover
+        background: $color-blue-light
+      @media (prefers-color-scheme: dark)
+        background: $color-blue
+        color: white
+        border-color: white
+      &:hover
+        filter: brightness(1.2)
+    &.she
+      color: $color-green
+      border: 2px solid $color-green
+      &:hover
+        background: $color-green-light
+      @media (prefers-color-scheme: dark)
+        background: $color-green
+        color: white
+        border-color: white
+      &:hover
+        filter: brightness(1.2)
+    &.he
+      color: $color-red
+      border: 2px solid $color-red
+      &:hover
+       background: $color-red-light
+      @media (prefers-color-scheme: dark)
+        background: $color-red
+        color: white
+        border-color: white
+      &:hover
+        filter: brightness(1.2)
+
 
 #difficulty-wrapper
   margin: 1em 0
-  border: 1px solid $color-light
   border-radius: 8px
   font-size: clamp(12pt, 4vw, 18pt)
 
@@ -63,9 +100,9 @@
         .tooltip
           position: absolute
           top: 100%
-          left: 140px
+          left: 160px
           transform: translateX(-50%)
-          width: 280px
+          width: clamp(200px, 280px, 80vw)
           background-color: rgba(0, 0, 0, 0.8)
           color: #fff
           padding: 0.5em
@@ -88,19 +125,41 @@
         &:hover .tooltip
           display: block
 
-      input[type="radio"]
+
+      .radio-input
+        border: 2px solid grey
         appearance: none
-        width: 20px
         height: 20px
-        border: 2px solid $color-primary
+        width: 20px
         border-radius: 50%
         cursor: pointer
-        transition: border-color 0.3s, background-color 0.3s
-
+        transition: border-color 0.3s, background 0.3s
+          
+      .radio-input.she
+        border-color: $color-green
         &:hover
-          border-color: $color-primary-hover
-
+          background: radial-gradient(circle, $color-green 0%, $color-green 25%, white 35%)
+          border-color: color.adjust($color-green, $lightness: 15%)
         &:checked
-          background-color: $color-primary-hover
-          border-color: $color-primary-hover
+          background: radial-gradient(circle, $color-green 0%, $color-green 30%, white 70%)
+          border-color: $color-green
+
+      .radio-input.he
+        border-color: $color-red
+        &:hover
+          background: radial-gradient(circle, $color-red 0%, $color-red 25%, white 35%)
+          border-color: color.adjust($color-red, $lightness: 15%)
+        &:checked
+          background: radial-gradient(circle, $color-red 0%, $color-red 30%, white 70%)
+          border-color: $color-red
+
+      .radio-input.they
+        border-color: $color-blue 
+        &:hover
+          background: radial-gradient(circle, $color-blue 0%, $color-blue 25%, white 35%)
+          border-color: color.adjust($color-blue, $lightness: 15%)
+        &:checked
+          background: radial-gradient(circle, $color-blue 0%, $color-blue 30%, white 70%)
+          border-color: $color-blue
+
 

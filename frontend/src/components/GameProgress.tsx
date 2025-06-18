@@ -4,10 +4,11 @@ import Gameboard from "./GameProgress/Gameboard";
 import InputTiles from "./GameProgress/InputTiles";
 import Keyboard from "./GameProgress/Keyboard";
 import Rules from "./GameProgress/Rules/Rules";
-import { KeyInput, AttemptData, ClueData } from "./types";
+import { KeyInput, AttemptData, ClueData, ClueResult } from "./types";
 import sheSpy from "./../assets/she.png";
 import heSpy from "./../assets/he.png";
 import theySpy from "./../assets/they.png";
+import SwitchColorScheme from "./SwitchColorScheme";
 
 const messages = [
   "Your psychic vision shattered the enemy's codes—our victory in this war is complete.",
@@ -49,29 +50,46 @@ const GameProgress: React.FC<GameProgressProps> = ({
   const [attemptData, setAttemptData] = useState<AttemptData>({
     attempts: [],
     responses: [],
+    requestedClues: [],
     solved: false,
   });
   const [showInstructions, setShowInstructions] = useState(false);
 
   const initialInfo: ClueData = {
-    "0": { present: undefined, possiblePositions: new Set([0, 1, 2, 3, 4]) },
-    "1": { present: undefined, possiblePositions: new Set([0, 1, 2, 3, 4]) },
-    "2": { present: undefined, possiblePositions: new Set([0, 1, 2, 3, 4]) },
-    "3": { present: undefined, possiblePositions: new Set([0, 1, 2, 3, 4]) },
-    "4": { present: undefined, possiblePositions: new Set([0, 1, 2, 3, 4]) },
-    "5": { present: undefined, possiblePositions: new Set([0, 1, 2, 3, 4]) },
-    "6": { present: undefined, possiblePositions: new Set([0, 1, 2, 3, 4]) },
-    "7": { present: undefined, possiblePositions: new Set([0, 1, 2, 3, 4]) },
-    "8": { present: undefined, possiblePositions: new Set([0, 1, 2, 3, 4]) },
-    "9": { present: undefined, possiblePositions: new Set([0, 1, 2, 3, 4]) },
-    x: { present: undefined, possiblePositions: new Set([0, 1, 2, 3, 4]) },
-    y: { present: undefined, possiblePositions: new Set([0, 1, 2, 3, 4]) },
+    "0": { present: undefined, possiblePositions: [0, 1, 2, 3, 4] },
+    "1": { present: undefined, possiblePositions: [0, 1, 2, 3, 4] },
+    "2": { present: undefined, possiblePositions: [0, 1, 2, 3, 4] },
+    "3": { present: undefined, possiblePositions: [0, 1, 2, 3, 4] },
+    "4": { present: undefined, possiblePositions: [0, 1, 2, 3, 4] },
+    "5": { present: undefined, possiblePositions: [0, 1, 2, 3, 4] },
+    "6": { present: undefined, possiblePositions: [0, 1, 2, 3, 4] },
+    "7": { present: undefined, possiblePositions: [0, 1, 2, 3, 4] },
+    "8": { present: undefined, possiblePositions: [0, 1, 2, 3, 4] },
+    "9": { present: undefined, possiblePositions: [0, 1, 2, 3, 4] },
+    x: { present: undefined, possiblePositions: [0, 1, 2, 3, 4] },
+    y: { present: undefined, possiblePositions: [0, 1, 2, 3, 4] },
   };
-  const [clueData, setClueData] = useState<ClueData>(initialInfo);
+
+  // Recuperamos el valor de clueData desde localStorage
+  const storedClueData = localStorage.getItem("clueData");
+
+  // Si existe en localStorage se parsea, en caso contrario se usa initialInfo
+  const initialClueData = storedClueData
+    ? JSON.parse(storedClueData)
+    : initialInfo;
+
+  // Definición del hook
+  const [clueData, setClueData] = useState<ClueData>(initialClueData);
+
   const [numOfAttempts, setNumOfAttempts] = useState<number>(-1);
-  const [keyColors, setKeyColors] = useState<
-    Record<string, "spy-says-no" | "spy-says-yes">
-  >({});
+
+  const storedKeyColors = localStorage.getItem("keyColors");
+  const initialKeyColors = storedKeyColors ? JSON.parse(storedKeyColors) : {};
+  const [keyColors, setKeyColors] =
+    useState<Record<string, "spy-says-no" | "spy-says-yes">>(initialKeyColors);
+  console.log("storedKeyColors", storedKeyColors);
+  console.log("initialKeyColors", initialKeyColors);
+  console.log("keyColors at the begging", keyColors);
 
   useEffect(() => {
     if (process.env.NODE_ENV !== "production") {
@@ -91,13 +109,37 @@ const GameProgress: React.FC<GameProgressProps> = ({
 
   const fetchGameState = async () => {
     try {
+      if (process.env.NODE_ENV !== "production") {
+        console.log("Fetching game state for gameId:", gameId);
+      }
+      if (!gameId) {
+        console.error("Game ID is not set");
+        setError("Game ID is not set");
+        return;
+      }
+
+      // Fetch the game state from the backend
       const response = await axios.get(`http://localhost:8000/games/${gameId}`);
+
+      const emptyRequestedClues: ClueResult[][] = Array.from(
+        { length: response.data.attempts?.length || 0 },
+        () => Array(5).fill("") as ClueResult[]
+      );
+
+      // Actualizamos el array vacío con las pistas (response.data.clues es un diccionario con claves "i_j")
+      const finalRequestedClues = updateRequestedClues(
+        emptyRequestedClues,
+        response.data.clues || {}
+      );
+
       setAttemptData({
         attempts: response.data.attempts || [],
         responses: response.data.responses || [],
-        clues: response.data.clues,
+        requestedClues: finalRequestedClues,
         solved: response.data.solved || false,
       });
+
+      setNumOfAttempts(response.data.attempts?.length || 0);
       if (process.env.NODE_ENV !== "production") {
         console.log("response.data", response.data);
       }
@@ -122,9 +164,11 @@ const GameProgress: React.FC<GameProgressProps> = ({
         ...prev,
         attempts: [...prev.attempts, attempt],
         responses: [...prev.responses, result],
-        solved: solved || prev.solved,
+        requestedClues: [...prev.requestedClues, ["", "", "", "", ""]],
+        solved: solved,
       }));
       setNumOfAttempts((prev) => prev + 1);
+
       return true;
     } catch (err) {
       console.error("Error submitting attempt", err);
@@ -180,11 +224,42 @@ const GameProgress: React.FC<GameProgressProps> = ({
     };
   }, [error]);
 
+  const updateRequestedClues = (
+    emptyArray: ClueResult[][],
+    cluesDict: Record<string, { result: string }>
+  ): ClueResult[][] => {
+    // Clonamos el array para no modificar el original directamente
+    const updated = emptyArray.map((row) => [...row]);
+    for (const key in cluesDict) {
+      if (cluesDict.hasOwnProperty(key)) {
+        const [attemptIdxStr, tileIdxStr] = key.split("_");
+        const attemptIdx = parseInt(attemptIdxStr, 10);
+        const tileIdx = parseInt(tileIdxStr, 10);
+        if (!isNaN(attemptIdx) && !isNaN(tileIdx) && updated[attemptIdx]) {
+          updated[attemptIdx][tileIdx] = cluesDict[key].result as ClueResult;
+        }
+      }
+    }
+    return updated;
+  };
+
+  useEffect(() => {
+    localStorage.setItem("clueData", JSON.stringify(clueData));
+    console.log("clueData updated in localStorage:", clueData);
+  }, [clueData]);
+
+  useEffect(() => {
+    localStorage.setItem("keyColors", JSON.stringify(keyColors));
+    console.log(
+      "keyColors (the state) changed > keyColors updated in localStorage:",
+      keyColors
+    );
+  }, [keyColors]);
+
   return (
     <>
       <header>
         <div id="game-head">
-          <div id="player-name">{playerName}</div>
           <div id="avatar">
             {playerAvatar === "she" && (
               <img src={sheSpy} alt="She Spy" className="avatar-image" />
@@ -196,6 +271,7 @@ const GameProgress: React.FC<GameProgressProps> = ({
               <img src={theySpy} alt="They Spy" className="avatar-image" />
             )}
           </div>
+          <div id="player-name">{playerName}</div>
           <div id="show-intructions">
             <button
               id="show-instructions"
@@ -204,6 +280,7 @@ const GameProgress: React.FC<GameProgressProps> = ({
               ?
             </button>
           </div>
+          <SwitchColorScheme />
         </div>
         <div id="game-info">
           <div id="show-obfuscation">
@@ -211,9 +288,9 @@ const GameProgress: React.FC<GameProgressProps> = ({
           </div>
           <div id="show-difficulty">
             {gameDifficulty === "0"
-              ? "0 clues"
+              ? "No clues"
               : gameDifficulty === "1"
-              ? "1 clue"
+              ? "1 single per game"
               : gameDifficulty === "5n"
               ? "∞ clues"
               : "1 clue per attempt"}
@@ -232,6 +309,7 @@ const GameProgress: React.FC<GameProgressProps> = ({
           gameId={gameId}
           keyColors={keyColors}
           clueData={clueData}
+          setAttemptData={setAttemptData}
         />
       </div>
       {gameStatus === "IN_PROGRESS" && (

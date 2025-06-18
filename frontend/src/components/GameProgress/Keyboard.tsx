@@ -16,10 +16,7 @@ type KeyInput =
 
 type KeyboardProps = {
   onKeyInput: (val: KeyInput) => void;
-  clueData: Record<
-    string,
-    { present?: boolean; possiblePositions: Set<number> }
-  >;
+  clueData: Record<string, { present?: boolean; possiblePositions: number[] }>;
   keyColors: Record<string, "spy-says-no" | "spy-says-yes">;
   setKeyColors: React.Dispatch<
     React.SetStateAction<Record<string, "spy-says-no" | "spy-says-yes">>
@@ -97,7 +94,7 @@ export default function Keyboard({
           }
           return newColors;
         });
-        setColorMode(null);
+        // setColorMode(null);
       } else {
         if (keyInput.type === "action") {
           if (keyInput.action === "spySaysNo") {
@@ -133,7 +130,7 @@ export default function Keyboard({
 
     return (
       <button
-        className={`key-button ${colorClass} ${
+        className={`key-button tile ${colorClass} ${
           isPresent === true ? "present" : isPresent === false ? "absent" : ""
         } ${isActive ? "active" : ""}`}
         onClick={handleClick}

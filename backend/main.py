@@ -114,16 +114,13 @@ async def get_clue(game_id: str, attemptIndex: int, tileIndex: int):
     if game.difficulty == "0":
         raise HTTPException(status_code=400, detail="No clues allowed for this difficulty")
     elif game.difficulty == "1":
-        if game.clues:  # si ya hay al menos una pista, no se permite más
+        if game.clues:  
             raise HTTPException(status_code=400, detail="Only one clue allowed for this game")
     elif game.difficulty == "n":
-        # Una pista por intento
         clues_for_attempt = [k for k in game.clues.keys() if k[0] == attemptIndex]
         if clues_for_attempt:
             raise HTTPException(status_code=400, detail="Only one clue allowed per attempt")
-    elif game.difficulty == "5n":
-        # Clues ilimitadas, no se valida nada
-        pass
+
 
     # Crear la clave como tupla
     key: Tuple[int, int] = (attemptIndex, tileIndex)
@@ -133,7 +130,6 @@ async def get_clue(game_id: str, attemptIndex: int, tileIndex: int):
             status_code=400,
             detail="Clue for this attempt and tile has already been requested"
         )
-    
     try:
         clue_str = clue(game.secret, game.attempts[attemptIndex], tileIndex)
     except Exception as e:
@@ -203,6 +199,5 @@ def clue(secret: str, attempt: str, position: int) -> str:
             result = "left"
         else:
             result = "right"
-    print(f"result: '{result}'")
     return result
 

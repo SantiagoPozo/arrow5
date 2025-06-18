@@ -28,8 +28,9 @@ const Rules: React.FC<RulesProps> = ({ setShowInstructions }) => (
         <p>
           <span className="green">🠈 ◎ 🠈</span> means that there are three
           symbols in this attempt that are part of the <em>Secret Code</em>. The
-          second one is steady (<span className="green">◎</span>), the other two
-          present symbols are to the left (<span className="green">🠈</span>).
+          second one is <em>steady</em> (<span className="green">◎</span>), the
+          other two symbols are located on the left (
+          <span className="green">🠈</span>).
         </p>
       </li>
       <li>
@@ -45,8 +46,8 @@ const Rules: React.FC<RulesProps> = ({ setShowInstructions }) => (
 
       <li>
         You can always use{" "}
-        <img src={closeEye} alt="Closed Eye" className="inline" />. But
-        <img src={closeEye} alt="Closed Eye" className="inline" /> can not be in
+        <img src={closeEye} alt="Closed Eye" className="inline" />. But{" "}
+        <img src={closeEye} alt="Closed Eye" className="inline" /> cannot be in
         the code in not-obfuscated games.
       </li>
     </ul>
@@ -67,7 +68,7 @@ const Rules: React.FC<RulesProps> = ({ setShowInstructions }) => (
         as{" "}
         <span className="red">
           {" "}
-          <em>absent</em> ×{" "}
+          <em>absent</em>×
         </span>
         , until the code is fully decoded.
       </li>

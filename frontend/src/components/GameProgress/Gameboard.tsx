@@ -5,39 +5,43 @@ import { AttemptData, ClueData } from "../types";
 import renderIcon from "../auxiliar";
 
 interface GameboardProps {
+  gameId: string;
   attemptData: AttemptData;
+  setAttemptData: React.Dispatch<React.SetStateAction<AttemptData>>;
   setError: React.Dispatch<React.SetStateAction<string>>;
   setClueData: React.Dispatch<React.SetStateAction<ClueData>>;
   clueData: ClueData;
-  gameId: string;
   keyColors: Record<string, "spy-says-no" | "spy-says-yes">;
 }
 
 const Gameboard: React.FC<GameboardProps> = ({
+  gameId,
   attemptData,
+  setAttemptData,
   setError,
   setClueData,
   clueData,
-  gameId,
   keyColors,
 }) => {
   return (
-    <div className="GameBoard">
-      {attemptData.attempts.map((at, index) => (
-        <div key={`attempt-${index}`}>
+    <div id="GameBoard">
+      {attemptData.attempts.map((attempt, index) => (
+        <div className="attempt-signal" key={`attempt-${index}`}>
           <div className="attempt">
-            {at.split("").map((character, innerIndex) => (
+            {attempt.split("").map((character, innerIndex) => (
               <Tile
                 key={`attempt-${index}-tile-${innerIndex}`}
                 gameId={gameId}
                 attemptIndex={index}
                 tileIndex={innerIndex}
+                setAttemptData={setAttemptData}
                 setError={setError}
                 setClueData={setClueData}
                 clueData={clueData}
-                attempt={at}
+                attempt={attempt}
+                attemptData={attemptData}
                 keyColor={keyColors[character]}
-                data-value={character}
+                character={character}
               >
                 {renderIcon(character)}
               </Tile>

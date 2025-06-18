@@ -3,6 +3,7 @@ import axios from "axios";
 import Avatar from "./GameCreate/Avatars";
 import Difficulty from "./GameCreate/Difficulty";
 import Mode from "./GameCreate/Mode";
+import SwitchColorScheme from "./SwitchColorScheme";
 
 // Actualizamos el type de props
 type CreateGameProps = {
@@ -60,6 +61,7 @@ const CreateGame: React.FC<CreateGameProps> = ({
   return (
     <div id="create-game">
       <h1>Arr👁w Code</h1>
+      <SwitchColorScheme />
       <h2>A Spies Game of Deduction and Deception</h2>
       <form onSubmit={handleCreateGame}>
         <Avatar
@@ -69,8 +71,14 @@ const CreateGame: React.FC<CreateGameProps> = ({
         <Difficulty
           selectedDifficulty={gameDifficulty}
           setSelectedDifficulty={setGameDifficulty}
+          playerAvatar={playerAvatar}
         />
-        <Mode obfuscation={obfuscation} setObfuscation={setObfuscation} />
+
+        <Mode
+          obfuscation={obfuscation}
+          setObfuscation={setObfuscation}
+          playerAvatar={playerAvatar}
+        />
         <input
           type="text"
           id="playerName"
@@ -80,7 +88,11 @@ const CreateGame: React.FC<CreateGameProps> = ({
           placeholder="Enter your name"
           autoFocus
         />
-        <button type="submit" disabled={!playerName.trim()}>
+        <button
+          type="submit"
+          disabled={!playerName.trim()}
+          className={playerAvatar}
+        >
           Create Game
         </button>
       </form>

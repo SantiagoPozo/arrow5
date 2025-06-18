@@ -1,58 +1,73 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import axios from "axios";
-import { ClueData } from "../types";
+import { AttemptData, ClueData } from "../types";
 
 type TileProps = {
   gameId?: string;
-  children?: React.ReactNode;
-  attemptIndex?: number;
-  tileIndex?: number;
+  attemptIndex: number;
+  tileIndex: number;
   setError?: (error: string) => void;
   setClueData: React.Dispatch<React.SetStateAction<ClueData>>;
   clueData: ClueData;
-  attempt?: string;
+  attempt: string;
+  setAttemptData: React.Dispatch<React.SetStateAction<AttemptData>>;
+  attemptData: AttemptData; // Nuevo prop
   keyColor?: "spy-says-no" | "spy-says-yes";
   updateKeyboardState?: (
     key: string,
     state: "spy-says-yes" | "spy-says-no"
   ) => void;
+  character: string;
+  children: React.ReactNode;
 };
 
 const Tile: React.FC<TileProps> = ({
   gameId,
-  children,
   attemptIndex,
   tileIndex,
   setError,
   setClueData,
   clueData,
   attempt,
+  setAttemptData,
+  attemptData,
   keyColor,
   updateKeyboardState,
+  character,
+  children: children,
 }) => {
-  const [cssClasses, setCssClasses] = useState<string>("result-tile tile");
-  const character = children ? String(children) : "";
-
-  // Update CSS classes when clueData changes for this digit
   useEffect(() => {
-    if (character && clueData[character]) {
-      const isPresent = clueData[character].present;
-      if (isPresent === true && !cssClasses.includes("present")) {
-        setCssClasses((prev) => prev + " present");
-      } else if (isPresent === false && !cssClasses.includes("absent")) {
-        setCssClasses((prev) => prev + " absent");
-      }
+    localStorage.setItem("clueData", JSON.stringify(clueData));
+    console.log("clueData updated:", clueData);
+  }, [clueData]);
+
+  let cssClasses = "result-tile tile";
+  // Agregamos el valor de attemptData.requestedClues para este intento y tile.
+  const charState = attemptData.requestedClues[attemptIndex][tileIndex];
+  if (charState !== "") {
+    cssClasses += ` clue-requested ${charState}`;
+  }
+  if (charState === "left" || charState === "right" || charState === "steady") {
+    cssClasses += " present";
+  }
+
+  if (typeof character === "string") {
+    if (
+      clueData[character].present === false &&
+      cssClasses.indexOf("absent") === -1
+    ) {
+      cssClasses += " absent";
     }
-  }, [clueData, character]);
-
-  // Update CSS classes when keyColor changes
-  useEffect(() => {
-    const baseClasses = cssClasses
-      .replace(/(spy-says-no|spy-says-yes)/g, "")
-      .trim();
-    setCssClasses(keyColor ? `${baseClasses} ${keyColor}` : baseClasses);
-  }, [keyColor]);
-
+    if (
+      clueData[character].present === true &&
+      cssClasses.indexOf("present") === -1
+    ) {
+      cssClasses += " present";
+    }
+  }
+  if (keyColor) {
+    cssClasses += ` ${keyColor}`;
+  }
   const handleClueRequest = async () => {
     if (!gameId || attemptIndex === undefined || tileIndex === undefined) {
       return;
@@ -65,14 +80,13 @@ const Tile: React.FC<TileProps> = ({
       );
       const clue = response.data.clue;
       console.log("Clue received:", clue);
-      setCssClasses(
-        `${cssClasses} clue-required ${clue} ${
-          clue === "left" || clue === "right" || clue === "steady"
-            ? "present"
-            : ""
-        }`
-      );
+
       handleClueReceived({ attemptIndex, tileIndex, clue });
+      setAttemptData((prev) => {
+        const newRequestedClues = [...prev.requestedClues];
+        newRequestedClues[attemptIndex][tileIndex] = clue;
+        return { ...prev, requestedClues: newRequestedClues };
+      });
     } catch (err) {
       console.error("Error fetching clue", err);
       const errorMsg =
@@ -104,41 +118,39 @@ const Tile: React.FC<TileProps> = ({
     }
 
     setClueData((prev) => {
-      const newDigitClue = { ...prev };
-      if (!newDigitClue[digit]) {
-        newDigitClue[digit] = {
-          possiblePositions: new Set([0, 1, 2, 3, 4]),
+      const newClueData = { ...prev };
+      if (!newClueData[digit]) {
+        newClueData[digit] = {
+          possiblePositions: [0, 1, 2, 3, 4],
         };
       }
 
       if (data.clue === "absent") {
-        newDigitClue[digit].present = false;
-        return newDigitClue;
+        newClueData[digit].present = false;
+        newClueData[digit].possiblePositions = [];
+        return newClueData;
       }
 
-      newDigitClue[digit].present = true;
+      newClueData[digit].present = true;
+
       if (data.clue === "steady") {
-        newDigitClue[digit].possiblePositions = new Set([data.tileIndex]);
+        newClueData[digit].possiblePositions = [data.tileIndex];
       } else if (data.clue === "right") {
-        newDigitClue[digit].possiblePositions = new Set(
-          Array.from(newDigitClue[digit].possiblePositions).filter(
-            (position) => position > data.tileIndex
-          )
-        );
+        newClueData[digit].possiblePositions = newClueData[
+          digit
+        ].possiblePositions.filter((position) => position > data.tileIndex);
       } else if (data.clue === "left") {
-        newDigitClue[digit].possiblePositions = new Set(
-          Array.from(newDigitClue[digit].possiblePositions).filter(
-            (position) => position < data.tileIndex
-          )
-        );
+        newClueData[digit].possiblePositions = newClueData[
+          digit
+        ].possiblePositions.filter((position) => position < data.tileIndex);
       }
-      return newDigitClue;
+      return newClueData;
     });
     console.log("Clue processed:", data);
   };
 
   return (
-    <div className={cssClasses} onClick={handleClueRequest}>
+    <div className={cssClasses.trim()} onClick={handleClueRequest}>
       {children}
     </div>
   );

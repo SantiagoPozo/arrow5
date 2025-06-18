@@ -23,6 +23,24 @@ function App() {
   useEffect(() => {
     const activeGame = localStorage.getItem("isActiveGame");
     const activeGameId = localStorage.getItem("activeGameId");
+    setPlayerName(localStorage.getItem("activePlayer") || "");
+
+    const activeAvatar = localStorage.getItem("activePlayerAvatar");
+    if (
+      activeAvatar === "she" ||
+      activeAvatar === "he" ||
+      activeAvatar === "they"
+    ) {
+      setPlayerAvatar(activeAvatar);
+    } else {
+      setPlayerAvatar("they");
+    }
+
+    setGameDifficulty(localStorage.getItem("activeGameDifficulty") || "n");
+    setObfuscation(
+      localStorage.getItem("activeGameObfuscation") === "true" ? true : false
+    );
+
     if (activeGame === "true" && activeGameId) {
       gameId.current = activeGameId;
 
@@ -32,7 +50,10 @@ function App() {
         try {
           const setup = JSON.parse(storedSetup);
           // setup debería tener la estructura:
-          // { playerAvatar: string, gameDifficulty: string, obfuscation: boolean }
+          // { playerAvatar: string,
+          //  gameDifficulty: string,
+          // obfuscation: boolean }
+          setPlayerName(localStorage.getItem("activePlayer") || "");
           setPlayerAvatar(setup.playerAvatar);
           setGameDifficulty(setup.gameDifficulty);
           setObfuscation(setup.obfuscation);
@@ -83,6 +104,8 @@ function App() {
             // Al terminar la partida, se limpia el estado persistido
             localStorage.removeItem("isActiveGame");
             localStorage.removeItem("activeGameId");
+            localStorage.removeItem("clueData");
+            localStorage.removeItem("keyColors");
           }}
           startNewGame={() => setGameStatus("NO_GAME")}
           gameStatus={gameStatus}

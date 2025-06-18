@@ -2,22 +2,44 @@
 
 header
   display: grid
-  grid-template-rows: 1fr 1fr 
+  grid-template-rows: 2fr 1fr
   gap: 0.1em
   width: 100%
-
+  #show-instructions
+    border: none
+    cursor: pointer
+    will-change: transform
+    transition: transform 0.3s ease-in-out
+    padding: 10px
+    &:hover
+      transform: scale(1.1)
+      color: $color-green
+      :root[data-theme='dark'] & 
+        color: $color-green-light
   #game-head
-    grid-row: 1
-    display: grid
-    grid-template-columns: 6fr 1fr 1fr
-    align-items: center
+    display: flex
+    justify-content: space-between
+    #avatar
+      flex-grow: 0
+    #player-name
+      flex-grow: 1
+      display: flex
+      justify-content: center
+      align-items: center
+    #show-instructions
+      flex-grow: 0
 
   #game-info
     font-size: 0.6em
-    grid-row: 2
-    display: grid
-    grid-template-columns: 1fr 1fr
+    display: flex
+    justify-content: space-between
     align-items: center
+
+  #player-name
+    max-width: 16ch
+    overflow: hidden
+    text-overflow: ellipsis
+    white-space: nowrap
 
 #avatar
   display: inline-block
@@ -25,8 +47,14 @@ header
   width: auto
   vertical-align: middle
   margin-right: 8px
-  border-radius: 50%
   object-fit: cover
+  transform: rotate(-8deg)
+  transition: transform 0.3s ease-in-out
+  will-change: transform
+  &:hover
+    transform: rotate(0deg)
   & img
     height: 50px
+  :root[data-theme='dark'] & 
+    background-color: $color-light
 

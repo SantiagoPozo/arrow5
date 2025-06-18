@@ -1,44 +1,43 @@
 @use '../abstracts/variables' as *
-
- 
+  
 body
   width: 100vw
   height: 100vh
 
 :root
-
   font-weight: 400
   color-scheme: light dark
-  color: rgba(255, 255, 255, 0.87)
-  background-color: #242424
   font-synthesis: none
   text-rendering: optimizeLegibility
   -webkit-font-smoothing: antialiased
   -moz-osx-font-smoothing: grayscale
+  color: $color-light $color-dark 
+  background-color: white $color-dark
 
-@media (prefers-color-scheme: light)
-  :root
-    color: #213547
-    background-color: #ffffff
-  button
-    background-color: $color-light
-    color: $color-dark
-@media (prefers-color-scheme: dark)
-  :root
-    color: #ffffff
-    background-color: #242424
-  button
-    background-color: $color-dark
+
+:root[data-theme='dark']
+  color: $color-light
+  background-color: $color-dark
+  button 
     color: $color-light
-  button
     background-color: $color-dark
-    color: $color-light
+    border: 2px solid $color-light
     &:hover
-      background-color: $color-primary-hover
+      background-color: $color-dark
       color: $color-light
 
+:root[data-theme='light'] 
+  background-color: $color-light
+  color: $color-dark
+  button 
+    color: $color-dark
+    background-color: $color-light
+    border: 2px solid $color-dark
+    &:hover
+      background-color: $color-light
+      color: $color-dark
 
-#root  
+#root 
   display: flex
   flex-direction: column
   justify-content: space-between

@@ -4,9 +4,14 @@ import "../../styles/components/_Mode.sass";
 interface ModeProps {
   obfuscation: boolean;
   setObfuscation: (value: boolean) => void;
+  playerAvatar: "she" | "he" | "they";
 }
 
-const Mode: React.FC<ModeProps> = ({ obfuscation, setObfuscation }) => {
+const Mode: React.FC<ModeProps> = ({
+  obfuscation,
+  setObfuscation,
+  playerAvatar,
+}) => {
   return (
     <div className="mode-wrapper">
       <div className="mode-toggle">
@@ -15,6 +20,7 @@ const Mode: React.FC<ModeProps> = ({ obfuscation, setObfuscation }) => {
             type="checkbox"
             checked={obfuscation}
             onChange={(e) => setObfuscation(e.target.checked)}
+            className={`mode-input ${playerAvatar}`}
           />
           <span className="toggle-slider"></span>
           <div className="toggle-text">

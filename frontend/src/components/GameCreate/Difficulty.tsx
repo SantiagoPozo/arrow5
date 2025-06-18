@@ -3,6 +3,7 @@ import React from "react";
 type DifficultyProps = {
   selectedDifficulty: string;
   setSelectedDifficulty: (value: string) => void;
+  playerAvatar: "she" | "he" | "they";
 };
 
 const OPTIONS = [
@@ -40,6 +41,7 @@ const OPTIONS = [
 const Difficulty: React.FC<DifficultyProps> = ({
   selectedDifficulty,
   setSelectedDifficulty,
+  playerAvatar,
 }) => (
   <div id="difficulty-wrapper">
     <p>Level</p>
@@ -54,6 +56,7 @@ const Difficulty: React.FC<DifficultyProps> = ({
               value={value}
               checked={selectedDifficulty === value}
               onChange={(e) => setSelectedDifficulty(e.target.value)}
+              className={`radio-input ${playerAvatar}`}
             />
           </div>
           <label htmlFor={id}>

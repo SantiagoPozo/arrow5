@@ -2,20 +2,31 @@
 
 #rules
   position: absolute
-  top: 0px
+  top: 10px
   z-index: 100
   left: calc( 50% - clamp(330px, 80%, 60ch) / 2 )
   width: clamp(330px, 80%, 50ch)
   padding: 1rem
   font-size: 1.2rem
   border: 2px solid #ccc
+  box-shadow: 10px -10px 2px rgba(0, 0, 0, 0.5)
+  :root[data-theme='dark'] & 
+    box-shadow: 10px -10px 2px rgba(255, 255, 255, 0.5)
+    border-color: $color-light
+
   border-radius: 5px
-  background-color: #fff
+  background-color: $color-light
+  :root[data-theme='dark'] & 
+    background-color: $color-dark
 
   .green, .green > em
     color: $color-green
+    :root[data-theme='dark'] & 
+      color: $color-green-light
   .red, .red > em
     color: $color-red
+    :root[data-theme='dark'] & 
+      color: $color-red-light
 
   li
     text-align: left 
@@ -51,4 +62,7 @@
 
   #close-instructions:hover   
     color: $color-green
+    will-change: transform
+    :root[data-theme='dark'] & 
+      color: $color-green-light
     transform: rotate(90deg)
