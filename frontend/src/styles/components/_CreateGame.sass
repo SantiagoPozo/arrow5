@@ -2,6 +2,13 @@
 @use "sass:color"
 
 #create-game
+  #title
+    display: flex
+    h1
+      flex-grow: 1
+    #switch-color-mode
+      flex-grow: 0
+      font-size: 1.1em
   form
     font-size: 1.5em
     display: flex
@@ -140,26 +147,44 @@
         &:hover
           background: radial-gradient(circle, $color-green 0%, $color-green 25%, white 35%)
           border-color: color.adjust($color-green, $lightness: 15%)
+          :root[data-theme='dark'] &
+            background: radial-gradient(circle, $color-green-light 0%, $color-green-light 25%, black 35%)
+            border-color: color.adjust($color-green-light, $lightness: 15%)
         &:checked
           background: radial-gradient(circle, $color-green 0%, $color-green 30%, white 70%)
           border-color: $color-green
+          :root[data-theme='dark'] &
+            background: radial-gradient(circle, $color-green-light 0%, $color-green-light 30%, black 70%)
+            border-color: $color-green-light
 
       .radio-input.he
         border-color: $color-red
         &:hover
           background: radial-gradient(circle, $color-red 0%, $color-red 25%, white 35%)
           border-color: color.adjust($color-red, $lightness: 15%)
+          :root[data-theme='dark'] &
+            background: radial-gradient(circle, $color-red-light 0%, $color-red-light 25%, black 35%)
+            border-color: color.adjust($color-red-light, $lightness: 15%)
         &:checked
           background: radial-gradient(circle, $color-red 0%, $color-red 30%, white 70%)
           border-color: $color-red
+          :root[data-theme='dark'] &
+            background: radial-gradient(circle, $color-red-light 0%, $color-red-light 30%, black 70%)
+            border-color: $color-red-light
 
       .radio-input.they
         border-color: $color-blue 
         &:hover
           background: radial-gradient(circle, $color-blue 0%, $color-blue 25%, white 35%)
           border-color: color.adjust($color-blue, $lightness: 15%)
+          :root[data-theme='dark'] &
+            background: radial-gradient(circle, $color-blue-light 0%, $color-blue-light 25%, black 35%)
+            border-color: color.adjust($color-blue-light, $lightness: 15%)
         &:checked
           background: radial-gradient(circle, $color-blue 0%, $color-blue 30%, white 70%)
           border-color: $color-blue
+          :root[data-theme='dark'] &
+            background: radial-gradient(circle, $color-blue-light 0%, $color-blue-light 30%, black 70%)
+            border-color: $color-blue-light
 
 

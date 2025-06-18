@@ -26,11 +26,19 @@ button.key-button
     border-color: #bbf
     border-width: 3px
   &.spy-says-no
-    border: 3px solid $color-red
-    color: $color-red
+    :root[data-theme='light'] &
+      border: 3px solid $color-red
+      color: $color-red
+    :root[data-theme='dark'] &
+      color: $color-red-light
+      border: 3px solid $color-red-light
   &.spy-says-yes
-    border: 3px solid $color-green
-    color: $color-green
+    :root[data-theme='light'] &
+      border: 3px solid $color-green
+      color: $color-green
+    :root[data-theme='dark'] &
+      color: $color-green-light
+      border: 3px solid $color-green-light
   &.present
     :root[data-theme='light'] &
       background-color: $color-green

@@ -8,9 +8,11 @@ header
   #show-instructions
     border: none
     cursor: pointer
+    background-color: transparent
     will-change: transform
     transition: transform 0.3s ease-in-out
     padding: 10px
+    height: 100%
     &:hover
       transform: scale(1.1)
       color: $color-green
@@ -48,13 +50,14 @@ header
   vertical-align: middle
   margin-right: 8px
   object-fit: cover
-  transform: rotate(-8deg)
-  transition: transform 0.3s ease-in-out
-  will-change: transform
-  &:hover
-    transform: rotate(0deg)
+  transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out
   & img
     height: 50px
   :root[data-theme='dark'] & 
     background-color: $color-light
+    border-radius: 5px
+    transform: rotate(-8deg)
+    will-change: transform
+    &:hover
+      transform: rotate(0deg)
 

@@ -13,6 +13,7 @@ body
   -moz-osx-font-smoothing: grayscale
   color: $color-light $color-dark 
   background-color: white $color-dark
+  transition: background-color 0.3s, color 0.3s
 
 
 :root[data-theme='dark']
@@ -20,7 +21,7 @@ body
   background-color: $color-dark
   button 
     color: $color-light
-    background-color: $color-dark
+    background-color: transparent
     border: 2px solid $color-light
     &:hover
       background-color: $color-dark

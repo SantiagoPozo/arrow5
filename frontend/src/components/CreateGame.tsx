@@ -60,8 +60,10 @@ const CreateGame: React.FC<CreateGameProps> = ({
 
   return (
     <div id="create-game">
-      <h1>Arr👁w Code</h1>
-      <SwitchColorScheme />
+      <div id="title">
+        <h1>Arr👁w Code</h1>
+        <SwitchColorScheme />
+      </div>
       <h2>A Spies Game of Deduction and Deception</h2>
       <form onSubmit={handleCreateGame}>
         <Avatar

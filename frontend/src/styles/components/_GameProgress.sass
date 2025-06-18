@@ -50,6 +50,7 @@
   transition: filter 0.2s ease
   &:hover
     cursor: help
+
   &::after
     display: flex
     justify-content: center
@@ -64,6 +65,10 @@
     margin: 0
     padding: 0
     background-color: #ccc
+  :root[data-theme='dark'] &
+    &:not(.clue-requested)::after
+      background-color: transparent
+
 
   &.spy-says-no
     box-shadow: inset -2px 0 1px $color-red, inset 0 2px 1px $color-red, inset 2px 0 1px $color-red, inset 0 -2px 1px $color-red
@@ -88,6 +93,9 @@
       background-color: $color-green
       :root[data-theme='dark'] &
         background-color: $color-green-light
+    &:not(clue-requested)::after
+      color: white
+      background-color: transparent
   &.absent
     border-bottom: none
     color: $color-red
@@ -95,13 +103,19 @@
     :root[data-theme='dark'] &
       color: $color-red-light
       box-shadow: inset -2px 0 2px $color-red-light, inset 0 2px 2px $color-red-light, inset 2px 0 2px $color-red-light, inset 0 -2px 2px $color-red-light
-    
-    &::after
+    &.clue-requested::after
       content: "×"
       background-color: $color-red
       color: white
       :root[data-theme='dark'] &
         background-color: $color-red-light
+        color: white
+    &:not(clue-requested)::after
+      :root[data-theme='dark'] &
+        background-color: transparent
+        color: $color-red-light
+        font-size: 0.8em
+
   &::after
     color: white
     font-size: 0.6em
