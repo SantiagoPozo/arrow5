@@ -1,11 +1,13 @@
 // src/components/auxiliar.tsx
 import React from "react";
 import openEye from "../assets/open-eye.png";
+import openEyeDark from "../assets/open-eye-dark.png";
 import closeEye from "../assets/close-eye.png";
 
 export default function renderIcon(
   value: string | React.ReactNode
 ): React.ReactNode {
+  // const isDarkMode =
   const charMap = {
     "0": "○",
     "1": "●",

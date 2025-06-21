@@ -286,7 +286,7 @@ const GameProgress: React.FC<GameProgressProps> = ({
           <div id="show-obfuscation">
             {obfuscation ? "Obfuscated" : "Not obfuscated"}
           </div>
-          <div id="show-difficulty">
+          <div id="show-cd culty">
             {gameDifficulty === "0"
               ? "No clues"
               : gameDifficulty === "1"
